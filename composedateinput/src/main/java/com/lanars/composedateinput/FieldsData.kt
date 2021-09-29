@@ -1,5 +1,10 @@
 package com.lanars.composedateinput
 
+/**
+ * Representation of current state of date text field
+ *
+ * Each array (day, month, year) contains integer or null values, representing digits in the corresponding part of field
+ */
 data class FieldsData(
     val day: Array<Int?>,
     val month: Array<Int?>,

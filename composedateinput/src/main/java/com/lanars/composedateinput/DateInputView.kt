@@ -31,6 +31,17 @@ import androidx.core.text.isDigitsOnly
 import com.lanars.composedateinput.DateValidator.validateDate
 import org.threeten.bp.LocalDate
 
+/**
+ * Date text field with on the fly validation
+ *
+ * @param modifier optional modifier
+ * @param format date format (enum)
+ * @param minDate minimum allowed date
+ * @param maxDate maximum allowed date
+ * @param onValueChange this callback is triggered when field value has changed. An updated object comes as a parameter of the callback
+ * @param onEditingComplete this callback is triggered when date is fully entered. A completed LocalDate object comes as a parameter of the callback
+ * @param textStyle optional text style configuration
+ */
 @ExperimentalComposeUiApi
 @Composable
 fun DateTextField(
