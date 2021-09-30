@@ -49,7 +49,7 @@ fun DateTextField(
     format: Format = Format.MMDDYYYY,
     minDate: LocalDate = LocalDate.of(1900, 1, 1),
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
-    onValueChange: (FieldsData) -> Unit,
+    onValueChange: (FieldsData) -> Unit = {},
     onEditingComplete: (LocalDate) -> Unit,
     textStyle: TextStyle = TextStyle.Default
 ) {
