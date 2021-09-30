@@ -96,6 +96,21 @@ fun DateTextField(
                 dateField = dateField,
                 length = dateField.length,
                 textStyle = textStyle,
+                onDelete = {
+                    onValueChange(
+                        FieldsData(
+                            day =
+                            fieldValues[DateField.Day]!!.values.map { if (it == -1) null else it }
+                                .toTypedArray(),
+                            month =
+                            fieldValues[DateField.Month]!!.values.map { if (it == -1) null else it }
+                                .toTypedArray(),
+                            year =
+                            fieldValues[DateField.Year]!!.values.map { if (it == -1) null else it }
+                                .toTypedArray()
+                        )
+                    )
+                },
                 onChange = { newValue, fieldType, index ->
                     if (newValue.isNotEmpty()) {
                         val isCorrect = validateDate(
@@ -172,6 +187,7 @@ fun DateTextField(
 internal fun DateInputField(
     dateField: DateField,
     length: Int,
+    onDelete: () -> Unit,
     onChange: (newValue: String, fieldType: DateField, index: Int) -> Unit,
     focusRequesters: Map<DateField, List<FocusRequester>>,
     maxWidthMap: MutableMap<DateField, Float>,
@@ -235,6 +251,7 @@ internal fun DateInputField(
                     .onKeyEvent { event ->
                         if (event.type == KeyEventType.KeyUp) {
                             if (event.key.nativeKeyCode == KeyEvent.KEYCODE_DEL) {
+                                onDelete()
                                 if (i == length - 1 && previousValue != values[dateField]!!.values[i]) {
                                     previousValue = values[dateField]!!.values[i]
                                 } else if (dateFormat.fields.indexOf(dateField) * 2 + i > 0) {
