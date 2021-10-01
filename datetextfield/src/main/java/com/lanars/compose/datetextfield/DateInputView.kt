@@ -44,6 +44,8 @@ import org.threeten.bp.LocalDate
  * @param contentTextStyle optional content text style configuration
  * @param hintTextStyle optional hint text style configuration
  * @param cursorBrush optional cursor style configuration
+ * @param delimiter custom date delimiter
+ * @param padding custom digits padding
  */
 @ExperimentalComposeUiApi
 @Composable
@@ -57,7 +59,8 @@ fun DateTextField(
     contentTextStyle: TextStyle = TextStyle.Default,
     hintTextStyle: TextStyle = TextStyle.Default.copy(color = Color.Gray),
     cursorBrush: Brush = SolidColor(Color.Black),
-    delimiter: Char = '/'
+    delimiter: Char = '/',
+    padding: DateDigitsPadding = DateDigitsPadding(horizontal = 4.dp, vertical = 0.dp)
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -93,7 +96,7 @@ fun DateTextField(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.offset((-4).dp)
+        modifier = modifier.padding(top = padding.top, bottom = padding.bottom)
     ) {
         val it: Iterator<*> = dateFormat.fields.iterator()
         while (it.hasNext()) {
@@ -178,7 +181,8 @@ fun DateTextField(
                 maxWidthMap = maxWidthMap,
                 values = fieldValues,
                 dateFormat = dateFormat,
-                cursorBrush = cursorBrush
+                cursorBrush = cursorBrush,
+                padding = padding
             )
             if (it.hasNext()) {
                 Text(
@@ -203,7 +207,8 @@ internal fun DateInputField(
     dateFormat: DateFormat,
     contentTextStyle: TextStyle,
     hintTextStyle: TextStyle,
-    cursorBrush: Brush
+    cursorBrush: Brush,
+    padding: DateDigitsPadding
 ) {
     val context = LocalContext.current
     CustomRow(
@@ -213,7 +218,7 @@ internal fun DateInputField(
             }
         },
         modifier = Modifier
-            .padding(start = 4.dp)
+            .padding(start = padding.start)
             .pointerInteropFilter {
                 when {
                     values[dateField]!!.isComplete -> {
@@ -305,7 +310,8 @@ internal fun DateInputField(
                     onChange(newValue, fieldType, i)
                 },
                 maxWidthMap = maxWidthMap,
-                cursorBrush = cursorBrush
+                cursorBrush = cursorBrush,
+                padding = padding
             )
         }
     }
@@ -320,11 +326,12 @@ internal fun SingleInputField(
     maxWidthMap: Map<DateField, Float>,
     contentTextStyle: TextStyle,
     hintTextStyle: TextStyle,
-    cursorBrush: Brush
+    cursorBrush: Brush,
+    padding: DateDigitsPadding
 ) {
     val inputTextModifier = when (maxWidthMap[dateField]) {
         0.0f -> modifier
-            .padding(end = 4.dp)
+            .padding(end = padding.end)
             .width(IntrinsicSize.Min)
         else -> modifier.width(maxWidthMap[dateField]!!.dp)
     }

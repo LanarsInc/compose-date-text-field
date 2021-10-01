@@ -14,8 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lanars.compose.datetextfield.DateDigitsPadding
 import com.lanars.compose.datetextfield.DateTextField
 import com.lanars.compose.datetextfield.Format
 import com.lanars.compose.datetextfieldexample.ui.theme.DateTextFieldExampleTheme
@@ -33,10 +34,15 @@ class MainActivity : ComponentActivity() {
                         contentAlignment = Alignment.Center
                     ) {
                         DateTextField(
-                            modifier = Modifier.onFocusChanged { Log.d("DateInput", it.toString()) },
+                            modifier = Modifier.onFocusChanged {
+                                Log.d(
+                                    "DateInput",
+                                    it.toString()
+                                )
+                            },
                             format = Format.DDMMYYYY,
-                            minDate = LocalDate.of(2009,8,27),
-                            maxDate = LocalDate.of(2020,9,17),
+                            minDate = LocalDate.of(2009, 8, 27),
+                            maxDate = LocalDate.of(2020, 9, 17),
                             onValueChange = {
                                 Log.d(
                                     "DateInput",
@@ -46,7 +52,8 @@ class MainActivity : ComponentActivity() {
                             onEditingComplete = { Log.d("DateInput", it.toString()) },
                             contentTextStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
                             hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
-                            delimiter = '.'
+                            delimiter = '.',
+                            padding = DateDigitsPadding(6.dp)
                         )
                     }
                 }
