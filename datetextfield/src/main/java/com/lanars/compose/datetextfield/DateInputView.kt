@@ -21,6 +21,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -211,6 +212,7 @@ internal fun DateInputField(
     padding: DateDigitsPadding
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     CustomRow(
         onMeasured = {
             if (maxWidthMap[dateField] == 0.0f) {
@@ -220,6 +222,7 @@ internal fun DateInputField(
         modifier = Modifier
             .padding(start = padding.start)
             .pointerInteropFilter {
+                focusManager.clearFocus()
                 when {
                     values[dateField]!!.isComplete -> {
                         focusRequesters[dateField]!![length - 1].requestFocus()
