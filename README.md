@@ -17,7 +17,7 @@ repositories {
 ```
 ```groovy
 dependencies {
-    implementation 'com.github.LanarsInc:compose-date-text-field:1.0.0'
+    implementation 'com.github.LanarsInc:compose-date-text-field:{latest version}'
 }
 ```
 
