@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.*
@@ -40,7 +41,9 @@ import org.threeten.bp.LocalDate
  * @param maxDate maximum allowed date
  * @param onValueChange this callback is triggered when field value has changed. An updated object comes as a parameter of the callback
  * @param onEditingComplete this callback is triggered when date is fully entered. A completed LocalDate object comes as a parameter of the callback
- * @param textStyle optional text style configuration
+ * @param contentTextStyle optional content text style configuration
+ * @param hintTextStyle optional hint text style configuration
+ * @param cursorBrush optional cursor style configuration
  */
 @ExperimentalComposeUiApi
 @Composable
@@ -51,7 +54,9 @@ fun DateTextField(
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
     onValueChange: (FieldsData) -> Unit = {},
     onEditingComplete: (LocalDate) -> Unit,
-    textStyle: TextStyle = TextStyle.Default
+    contentTextStyle: TextStyle = TextStyle.Default,
+    hintTextStyle: TextStyle = TextStyle.Default.copy(color = Color.Gray),
+    cursorBrush: Brush = SolidColor(Color.Black)
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -95,7 +100,8 @@ fun DateTextField(
             DateInputField(
                 dateField = dateField,
                 length = dateField.length,
-                textStyle = textStyle,
+                contentTextStyle = contentTextStyle,
+                hintTextStyle = hintTextStyle,
                 onDelete = {
                     onValueChange(
                         FieldsData(
@@ -171,11 +177,12 @@ fun DateTextField(
                 maxWidthMap = maxWidthMap,
                 values = fieldValues,
                 dateFormat = dateFormat,
+                cursorBrush = cursorBrush
             )
             if (it.hasNext()) {
                 Text(
                     text = stringResource(id = R.string.slash),
-                    style = textStyle.copy(color = Color.Gray)
+                    style = hintTextStyle
                 )
             }
         }
@@ -193,7 +200,9 @@ internal fun DateInputField(
     maxWidthMap: MutableMap<DateField, Float>,
     values: MutableMap<DateField, DateFieldValue>,
     dateFormat: DateFormat,
-    textStyle: TextStyle
+    contentTextStyle: TextStyle,
+    hintTextStyle: TextStyle,
+    cursorBrush: Brush
 ) {
     val context = LocalContext.current
     CustomRow(
@@ -280,7 +289,8 @@ internal fun DateInputField(
                         false
                     },
                 dateField = dateField,
-                textStyle = textStyle,
+                contentTextStyle = contentTextStyle,
+                hintTextStyle = hintTextStyle,
                 value = if (values[dateField]!!.values[i] == -1) "" else values[dateField]!!.values[i].toString(),
                 onChange = { newValue, fieldType ->
 
@@ -293,7 +303,8 @@ internal fun DateInputField(
 
                     onChange(newValue, fieldType, i)
                 },
-                maxWidthMap = maxWidthMap
+                maxWidthMap = maxWidthMap,
+                cursorBrush = cursorBrush
             )
         }
     }
@@ -305,8 +316,10 @@ internal fun SingleInputField(
     dateField: DateField,
     value: String,
     onChange: (newValue: String, fieldType: DateField) -> Unit,
-    textStyle: TextStyle,
-    maxWidthMap: Map<DateField, Float>
+    maxWidthMap: Map<DateField, Float>,
+    contentTextStyle: TextStyle,
+    hintTextStyle: TextStyle,
+    cursorBrush: Brush
 ) {
     val inputTextModifier = when (maxWidthMap[dateField]) {
         0.0f -> modifier
@@ -331,8 +344,9 @@ internal fun SingleInputField(
         placeHolderString = stringResource(id = dateField.placeholderRes),
         modifier = inputTextModifier,
         singleLine = true,
-        contentTextStyle = textStyle,
-        hintTextStyle = textStyle.copy(color = Color.Gray),
+        contentTextStyle = contentTextStyle,
+        hintTextStyle = hintTextStyle,
+        cursorBrush = cursorBrush
     )
 }
 
@@ -350,7 +364,7 @@ internal fun InputEditText(
     maxLines: Int = Int.MAX_VALUE,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
-    cursorColor: Color = Color.Black,
+    cursorBrush: Brush
 ) {
     BasicTextField(
         value = value,
@@ -386,7 +400,7 @@ internal fun InputEditText(
         maxLines = maxLines,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
-        cursorBrush = SolidColor(cursorColor),
+        cursorBrush = cursorBrush,
     )
 }
 

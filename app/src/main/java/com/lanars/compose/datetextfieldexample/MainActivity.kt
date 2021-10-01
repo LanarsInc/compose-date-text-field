@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
@@ -43,7 +44,8 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             onEditingComplete = { Log.d("DateInput", it.toString()) },
-                            textStyle = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 25.sp),
+                            contentTextStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
+                            hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
                         )
                     }
                 }
