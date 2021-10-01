@@ -56,7 +56,8 @@ fun DateTextField(
     onEditingComplete: (LocalDate) -> Unit,
     contentTextStyle: TextStyle = TextStyle.Default,
     hintTextStyle: TextStyle = TextStyle.Default.copy(color = Color.Gray),
-    cursorBrush: Brush = SolidColor(Color.Black)
+    cursorBrush: Brush = SolidColor(Color.Black),
+    delimiter: Char = '/'
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -181,7 +182,7 @@ fun DateTextField(
             )
             if (it.hasNext()) {
                 Text(
-                    text = stringResource(id = R.string.slash),
+                    text = delimiter.toString(),
                     style = hintTextStyle
                 )
             }

@@ -46,6 +46,7 @@ class MainActivity : ComponentActivity() {
                             onEditingComplete = { Log.d("DateInput", it.toString()) },
                             contentTextStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
                             hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
+                            delimiter = '.'
                         )
                     }
                 }
