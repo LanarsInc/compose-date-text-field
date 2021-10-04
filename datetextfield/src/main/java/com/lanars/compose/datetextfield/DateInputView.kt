@@ -47,6 +47,7 @@ import org.threeten.bp.LocalDate
  * @param cursorBrush optional cursor style configuration
  * @param delimiter custom date delimiter
  * @param padding custom digits padding
+ * @param readOnly when true, the text field can not be modified
  */
 @ExperimentalComposeUiApi
 @Composable
@@ -61,7 +62,8 @@ fun DateTextField(
     hintTextStyle: TextStyle = TextStyle.Default.copy(color = Color.Gray),
     cursorBrush: Brush = SolidColor(Color.Black),
     delimiter: Char = '/',
-    padding: DateDigitsPadding = DateDigitsPadding(horizontal = 4.dp, vertical = 0.dp)
+    padding: DateDigitsPadding = DateDigitsPadding(horizontal = 4.dp, vertical = 0.dp),
+    readOnly: Boolean = false
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -183,7 +185,8 @@ fun DateTextField(
                 values = fieldValues,
                 dateFormat = dateFormat,
                 cursorBrush = cursorBrush,
-                padding = padding
+                padding = padding,
+                readOnly = readOnly
             )
             if (it.hasNext()) {
                 Text(
@@ -209,7 +212,8 @@ internal fun DateInputField(
     contentTextStyle: TextStyle,
     hintTextStyle: TextStyle,
     cursorBrush: Brush,
-    padding: DateDigitsPadding
+    padding: DateDigitsPadding,
+    readOnly: Boolean
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -314,7 +318,8 @@ internal fun DateInputField(
                 },
                 maxWidthMap = maxWidthMap,
                 cursorBrush = cursorBrush,
-                padding = padding
+                padding = padding,
+                readOnly = readOnly
             )
         }
     }
@@ -330,7 +335,8 @@ internal fun SingleInputField(
     contentTextStyle: TextStyle,
     hintTextStyle: TextStyle,
     cursorBrush: Brush,
-    padding: DateDigitsPadding
+    padding: DateDigitsPadding,
+    readOnly: Boolean
 ) {
     val inputTextModifier = when (maxWidthMap[dateField]) {
         0.0f -> modifier
@@ -357,7 +363,8 @@ internal fun SingleInputField(
         singleLine = true,
         contentTextStyle = contentTextStyle,
         hintTextStyle = hintTextStyle,
-        cursorBrush = cursorBrush
+        cursorBrush = cursorBrush,
+        readOnly = readOnly
     )
 }
 
