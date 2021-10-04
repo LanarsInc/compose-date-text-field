@@ -98,19 +98,19 @@ internal object DateValidator {
                     return false
                 }
                 if (day.isComplete) {
-                    if (yearValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue / 10
-                        && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12 && day.intValue < dateFormat.minDate.dayOfMonth
-                        || yearValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue / 10
-                        && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10 && day.intValue > dateFormat.maxDate.dayOfMonth
+                    if ((yearValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue / 10
+                                && (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12) && day.intValue < dateFormat.minDate.dayOfMonth)
+                        || (yearValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue / 10
+                                && (dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10) && day.intValue > dateFormat.maxDate.dayOfMonth)
                     ) {
                         return false
                     }
                 }
                 if (day.count == 1) {
-                    if (yearValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue / 10
-                        && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12 && day.intValue < dateFormat.minDate.dayOfMonth / 10
-                        || yearValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue / 10
-                        && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10 && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                    if ((yearValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue / 10
+                                && (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12) && day.intValue < dateFormat.minDate.dayOfMonth / 10)
+                        || (yearValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue / 10
+                                && (dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10) && day.intValue > dateFormat.maxDate.dayOfMonth / 10)
                     ) {
                         return false
                     }
@@ -151,16 +151,15 @@ internal object DateValidator {
             return month.intValue !in dateFormat.maxDate.monthValue + 1 until dateFormat.minDate.monthValue
         } else {
             if (day.isComplete) {
-                if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
-                    && day.intValue < dateFormat.minDate.dayOfMonth && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
-                    || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth
+                if ((month.intValue == dateFormat.minDate.monthValue / 10 && (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12)
+                            && day.intValue < dateFormat.minDate.dayOfMonth) || (month.intValue == dateFormat.maxDate.monthValue / 10
+                            && (dateFormat.maxDate.monthValue == 10 || dateFormat.maxDate.monthValue == 1) && day.intValue > dateFormat.maxDate.dayOfMonth)
                 ) {
                     return false
                 }
             } else if (day.count == 1) {
-                if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
-                    && day.intValue < dateFormat.minDate.dayOfMonth / 10 && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
-                    || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                if ((month.intValue == dateFormat.minDate.monthValue / 10 && (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12) && day.intValue < dateFormat.minDate.dayOfMonth / 10)
+                    || (month.intValue == dateFormat.minDate.monthValue / 10 && (dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10) && day.intValue > dateFormat.maxDate.dayOfMonth / 10)
                 ) {
                     return false
                 }
@@ -322,14 +321,14 @@ internal object DateValidator {
                     )
                 }
                 if (yearValue == dateFormat.minDate.year) {
-                    if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
+                    if (month.intValue == dateFormat.minDate.monthValue / 10 && (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12)
                         && day.intValue < dateFormat.minDate.dayOfMonth
                     ) {
                         return false
                     }
                 }
                 if (yearValue == dateFormat.maxDate.year) {
-                    if (month.intValue == dateFormat.maxDate.monthValue / 10 && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
+                    if (month.intValue == dateFormat.maxDate.monthValue / 10 && (dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10)
                         && day.intValue > dateFormat.maxDate.dayOfMonth
                     ) {
                         return false
@@ -352,14 +351,14 @@ internal object DateValidator {
             if (!day.isComplete && month.count in 1 until DateField.Month.length) {
                 if (yearValue == dateFormat.minDate.year) {
                     if (month.intValue == dateFormat.minDate.monthValue / 10 && day.intValue < dateFormat.minDate.dayOfMonth / 10
-                        && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
+                        && (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12)
                     ) {
                         return false
                     }
                 }
                 if (yearValue == dateFormat.maxDate.year) {
                     if (month.intValue == dateFormat.maxDate.monthValue / 10 && day.intValue > dateFormat.maxDate.dayOfMonth / 10
-                        && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
+                        && (dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10)
                     ) {
                         return false
                     }
@@ -408,9 +407,9 @@ internal object DateValidator {
                     return false
                 }
             } else if (month.count == 1) {
-                if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
-                    && day.intValue < dateFormat.minDate.dayOfMonth || month.intValue == dateFormat.maxDate.monthValue / 10
-                    && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 1 && day.intValue > dateFormat.maxDate.dayOfMonth
+                if ((month.intValue == dateFormat.minDate.monthValue / 10 && (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12)
+                            && day.intValue < dateFormat.minDate.dayOfMonth) || (month.intValue == dateFormat.maxDate.monthValue / 10
+                            && (dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 1) && day.intValue > dateFormat.maxDate.dayOfMonth)
                 ) {
                     return false
                 }
@@ -433,9 +432,9 @@ internal object DateValidator {
                     return false
                 }
             } else if (month.count == 1) {
-                if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
-                    && day.intValue < dateFormat.minDate.dayOfMonth / 10 || month.intValue == dateFormat.maxDate.monthValue / 10
-                    && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 1 && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                if ((month.intValue == dateFormat.minDate.monthValue / 10 && (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12)
+                            && day.intValue < dateFormat.minDate.dayOfMonth / 10) || (month.intValue == dateFormat.maxDate.monthValue / 10
+                            && (dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 1) && day.intValue > dateFormat.maxDate.dayOfMonth / 10)
                 ) {
                     return false
                 }
@@ -443,7 +442,7 @@ internal object DateValidator {
             if (dateFormat.minDate.monthValue == dateFormat.maxDate.monthValue) {
                 return day.intValue in (dateFormat.minDate.dayOfMonth / 10)..(dateFormat.maxDate.dayOfMonth / 10)
             }
-            if(dateFormat.minDate.monthValue != 12 && dateFormat.maxDate.monthValue != 1) {
+            if (dateFormat.minDate.monthValue != 12 && dateFormat.maxDate.monthValue != 1) {
                 return true
             }
             return day.intValue !in (dateFormat.maxDate.dayOfMonth / 10) + 1 until (dateFormat.minDate.dayOfMonth / 10)
