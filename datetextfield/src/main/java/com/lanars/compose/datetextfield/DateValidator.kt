@@ -138,7 +138,7 @@ internal object DateValidator {
                 month.intValue in (dateFormat.minDate.monthValue / 10)..(dateFormat.maxDate.monthValue / 10)
             }
         } else {
-            return if (month.isComplete) {
+            if (month.isComplete) {
                 if (day.isComplete) {
                     if (month.intValue == dateFormat.minDate.monthValue && day.intValue < dateFormat.minDate.dayOfMonth
                         || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth
@@ -152,7 +152,7 @@ internal object DateValidator {
                         return false
                     }
                 }
-                month.intValue !in dateFormat.maxDate.monthValue + 1 until dateFormat.minDate.monthValue
+                return month.intValue !in dateFormat.maxDate.monthValue + 1 until dateFormat.minDate.monthValue
             } else {
                 if (day.isComplete) {
                     if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
@@ -169,9 +169,9 @@ internal object DateValidator {
                         return false
                     }
                 }
-                true
             }
         }
+        return true
     }
 
     private fun basicValidateMonth(
@@ -295,6 +295,9 @@ internal object DateValidator {
         if (!basicValidateDay(month, day, year)) {
             return false
         }
+        if (!isDayInRange(month, day, dateFormat)) {
+            return false
+        }
 
         if (!year.isEmpty) {
             var yearValue: Int = year.intValue
@@ -321,12 +324,16 @@ internal object DateValidator {
                     )
                 }
                 if (yearValue == dateFormat.minDate.year) {
-                    if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12 && day.intValue < dateFormat.minDate.dayOfMonth) {
+                    if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
+                        && day.intValue < dateFormat.minDate.dayOfMonth
+                    ) {
                         return false
                     }
                 }
                 if (yearValue == dateFormat.maxDate.year) {
-                    if (month.intValue == dateFormat.maxDate.monthValue / 10 && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10 && day.intValue > dateFormat.maxDate.dayOfMonth) {
+                    if (month.intValue == dateFormat.maxDate.monthValue / 10 && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
+                        && day.intValue > dateFormat.maxDate.dayOfMonth
+                    ) {
                         return false
                     }
                 }
@@ -346,18 +353,114 @@ internal object DateValidator {
             }
             if (!day.isComplete && month.count in 1 until DateField.Month.length) {
                 if (yearValue == dateFormat.minDate.year) {
-                    if (month.intValue == dateFormat.minDate.monthValue / 10 && day.intValue < dateFormat.minDate.dayOfMonth / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12) {
+                    if (month.intValue == dateFormat.minDate.monthValue / 10 && day.intValue < dateFormat.minDate.dayOfMonth / 10
+                        && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
+                    ) {
                         return false
                     }
                 }
                 if (yearValue == dateFormat.maxDate.year) {
-                    if (month.intValue == dateFormat.maxDate.monthValue / 10 && day.intValue > dateFormat.maxDate.dayOfMonth / 10 && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10) {
+                    if (month.intValue == dateFormat.maxDate.monthValue / 10 && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                        && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
+                    ) {
                         return false
+                    }
+                }
+            }
+            if (month.isEmpty) {
+                if (day.isComplete) {
+                    if (yearValue == dateFormat.minDate.year && dateFormat.minDate.monthValue == 12) {
+                        return day.intValue >= dateFormat.minDate.dayOfMonth
+                    }
+                    if (yearValue == dateFormat.maxDate.year && dateFormat.maxDate.monthValue == 1) {
+                        return day.intValue <= dateFormat.maxDate.dayOfMonth
+                    }
+                } else if (day.count == 1) {
+                    if (yearValue == dateFormat.minDate.year && dateFormat.minDate.monthValue == 12) {
+                        return day.intValue >= dateFormat.minDate.dayOfMonth / 10
+                    }
+                    if (yearValue == dateFormat.maxDate.year && dateFormat.maxDate.monthValue == 1) {
+                        return day.intValue <= dateFormat.maxDate.dayOfMonth / 10
                     }
                 }
             }
         }
         return true
+    }
+
+    private fun isDayInRange(
+        month: DateFieldValue,
+        day: DateFieldValue,
+        dateFormat: DateFormat
+    ): Boolean {
+        if(dateFormat.maxDate.year - dateFormat.minDate.year <= 1) {
+            if(dateFormat.maxDate.year == dateFormat.minDate.year) {
+                val period =
+                    Period.between(dateFormat.minDate.toLocalDate(), dateFormat.maxDate.toLocalDate())
+                if (period.months >= 1) {
+                    return true
+                }
+            } else {
+                if(dateFormat.minDate.monthValue != 12 && dateFormat.maxDate.monthValue != 1) {
+                    return true
+                }
+            }
+        } else {
+            return true
+        }
+        if (dateFormat.minDate.monthValue == dateFormat.maxDate.monthValue) {
+            return if (day.isComplete) {
+                day.intValue in dateFormat.minDate.dayOfMonth..dateFormat.maxDate.dayOfMonth
+            } else {
+                day.intValue in (dateFormat.minDate.dayOfMonth / 10)..(dateFormat.maxDate.dayOfMonth / 10)
+            }
+        } else {
+            if (day.isComplete) {
+                if (day.intValue > getMaxMonthValue(dateFormat.minDate.monthValue) && day.intValue > getMaxMonthValue(
+                        dateFormat.maxDate.monthValue
+                    )
+                ) {
+                    return false
+                }
+                if (month.isComplete) {
+                    if (month.intValue == dateFormat.minDate.monthValue && day.intValue < dateFormat.minDate.dayOfMonth
+                        || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth
+                    ) {
+                        return false
+                    }
+                } else if (month.count == 1) {
+                    if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
+                        && day.intValue < dateFormat.minDate.dayOfMonth || month.intValue == dateFormat.maxDate.monthValue / 10
+                        && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 1 && day.intValue > dateFormat.maxDate.dayOfMonth
+                    ) {
+                        return false
+                    }
+                }
+                return day.intValue !in dateFormat.maxDate.dayOfMonth + 1 until dateFormat.minDate.dayOfMonth
+            } else {
+                if (day.intValue > getMaxMonthValue(dateFormat.minDate.monthValue) / 10 && day.intValue > getMaxMonthValue(
+                        dateFormat.maxDate.monthValue / 10
+                    )
+                ) {
+                    return false
+                }
+                if (month.isComplete) {
+                    if (month.intValue == dateFormat.minDate.monthValue && day.intValue < dateFormat.minDate.dayOfMonth / 10
+                        || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                    ) {
+                        return false
+                    }
+                } else if (month.count == 1) {
+                    if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
+                        && day.intValue < dateFormat.minDate.dayOfMonth / 10 || month.intValue == dateFormat.maxDate.monthValue / 10
+                        && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 1 && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                    ) {
+                        return false
+                    }
+                }
+                return day.intValue !in (dateFormat.maxDate.dayOfMonth / 10) + 1 until (dateFormat.minDate.dayOfMonth / 10)
+            }
+        }
     }
 
     private fun basicValidateDay(
