@@ -3,6 +3,7 @@ package com.lanars.compose.datetextfield
 import org.threeten.bp.DateTimeException
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
+import org.threeten.bp.Period
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -49,163 +50,151 @@ internal object DateValidator {
         if (!basicValidateMonth(month, day, year, dateFormat)) {
             return false
         }
-
-        if (month.isComplete) {
-            if (month.intValue == 2 && day.values[0] > 2) {
-                return false
-            }
-            if (year.isComplete) {
-                if (year.intValue == dateFormat.minDate.year && monthIntValue < dateFormat.minDate.monthValue) {
-                    return false
-                } else if (year.intValue == dateFormat.maxDate.year && monthIntValue > dateFormat.maxDate.monthValue) {
-                    return false
-                }
-                if (!day.isEmpty && !day.isComplete) {
-                    if (year.intValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue && day.intValue < dateFormat.minDate.dayOfMonth / 10) {
-                        return false
-                    }
-                    if (year.intValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth / 10) {
-                        return false
-                    }
-                }
-                return true
-            } else {
-                if (month.intValue >= dateFormat.maxDate.monthValue) {
-                    val yearString = year.intValue.toString()
-                    val maxYearString =
-                        dateFormat.maxDate.year.toString().take(yearString.length)
-
-                    if (yearString.toInt() >= maxYearString.toInt()) {
-                        val completedYear = completeYearValue(year.intValue, 0)
-
-                        if (completedYear == dateFormat.maxDate.year) {
-                            if (month.intValue == dateFormat.maxDate.monthValue) {
-                                if (day.isComplete && day.intValue > dateFormat.maxDate.dayOfMonth) {
-                                    return false
-                                } else if (!day.isComplete && !day.isEmpty && day.intValue > dateFormat.maxDate.dayOfMonth / 10) {
-                                    return false
-                                }
-                                return true
-                            }
-                            return false
-                        }
-                    }
-                }
-                if (month.intValue <= dateFormat.minDate.monthValue) {
-                    val yearString = year.intValue.toString()
-                    val minYearString =
-                        dateFormat.minDate.year.toString().take(yearString.length)
-
-                    if (yearString.toInt() <= minYearString.toInt()) {
-                        val completedYear = completeYearValue(year.intValue, 9)
-
-                        if (completedYear == dateFormat.minDate.year) {
-                            if (month.intValue == dateFormat.minDate.monthValue) {
-                                if (day.isComplete && day.intValue < dateFormat.minDate.dayOfMonth) {
-                                    return false
-                                } else if (!day.isComplete && !day.isEmpty && day.intValue < dateFormat.minDate.dayOfMonth / 10) {
-                                    return false
-                                }
-                                return true
-                            }
-                            return false
-                        }
-                    }
-                }
-            }
-            if (!year.isComplete || !day.isComplete) {
-                return !day.isComplete || day.intValue <= getMaxMonthValue(
-                    monthIntValue
-                )
-            } else {
-                if (isDateExists(day.intValue, monthIntValue, year.intValue)) {
-                    val date = LocalDateTime.of(year.intValue, monthIntValue, day.intValue, 0, 0)
-                    return isDateInAllowedRange(date, dateFormat)
-                }
-                return false
-            }
-        } else {
-            if (monthIntValue <= 1) {
-                if (year.intValue == dateFormat.minDate.year && monthIntValue < dateFormat.minDate.monthValue / 10) {
-                    return false
-                } else if (year.intValue == dateFormat.maxDate.year && monthIntValue > dateFormat.maxDate.monthValue / 10) {
-                    return false
-                }
-                if (year.count in 1 until DateField.Year.length) {
-                    if (month.intValue >= dateFormat.maxDate.monthValue / 10) {
-                        val yearString = year.intValue.toString()
-                        val maxYearString =
-                            dateFormat.maxDate.year.toString().take(yearString.length)
-
-                        if (yearString.toInt() == maxYearString.toInt()) {
-                            val completedYear = completeYearValue(year.intValue, 0)
-
-                            if (completedYear == dateFormat.maxDate.year) {
-                                if (month.intValue == dateFormat.maxDate.monthValue / 10) {
-                                    if (dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10) {
-                                        if (day.isComplete && day.intValue > dateFormat.maxDate.dayOfMonth) {
-                                            return false
-                                        } else if (day.count in 0 until DateField.Day.length && day.intValue > dateFormat.maxDate.dayOfMonth / 10) {
-                                            return false
-                                        }
-                                    }
-                                    return true
-                                }
-                                return false
-                            }
-                        }
-                    }
-                    if (month.intValue <= dateFormat.minDate.monthValue / 10) {
-                        val yearString = year.intValue.toString()
-                        val minYearString =
-                            dateFormat.minDate.year.toString().take(yearString.length)
-
-                        if (yearString.toInt() == minYearString.toInt()) {
-                            val completedYear = completeYearValue(year.intValue, 9)
-
-                            if (completedYear == dateFormat.minDate.year) {
-                                if (month.intValue == dateFormat.minDate.monthValue / 10) {
-                                    if (dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12) {
-                                        if (day.isComplete && day.intValue < dateFormat.minDate.dayOfMonth) {
-                                            return false
-                                        } else if (day.count in 0 until DateField.Day.length && day.intValue < dateFormat.minDate.dayOfMonth / 10) {
-                                            return false
-                                        }
-                                    }
-                                    return true
-                                }
-                                return false
-                            }
-                        }
-                    }
-                }
-                if (!day.isEmpty && !day.isComplete) {
-                    if (year.intValue == dateFormat.minDate.year && day.intValue < dateFormat.minDate.dayOfMonth / 10
-                        && month.intValue == dateFormat.minDate.monthValue / 10 && (dateFormat.minDate.monthValue == 9
-                                || dateFormat.minDate.monthValue == 12)
-                    ) {
-                        return false
-                    } else if (year.intValue == dateFormat.maxDate.year && day.intValue > dateFormat.maxDate.dayOfMonth / 10
-                        && month.intValue == dateFormat.maxDate.monthValue / 10 && (dateFormat.maxDate.monthValue == 1
-                                || dateFormat.maxDate.monthValue == 10)
-                    ) {
-                        return false
-                    }
-                } else if (day.isComplete) {
-                    if (year.intValue == dateFormat.minDate.year && day.intValue < dateFormat.minDate.dayOfMonth
-                        && month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
-                    ) {
-                        return false
-                    } else if (year.intValue == dateFormat.maxDate.year && day.intValue > dateFormat.maxDate.dayOfMonth
-                        && month.intValue == dateFormat.maxDate.monthValue / 10 && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
-                    ) {
-                        return false
-                    }
-                }
-                return true
-            }
+        if (!isMonthInRange(month, day, dateFormat)) {
             return false
         }
+
+        if (!year.isEmpty) {
+            var yearValue: Int = year.intValue
+            if (!year.isComplete) {
+                if (isMaximumPossibleYear(year.intValue, dateFormat)) {
+                    yearValue = completeYearValue(year.intValue, 0)
+                } else if (isMinimumPossibleYear(year.intValue, dateFormat)) {
+                    yearValue = completeYearValue(year.intValue, 9)
+                } else {
+                    return true
+                }
+            }
+
+            if (month.isComplete) {
+                if (month.intValue == 2 && day.values[0] > 2) {
+                    return false
+                }
+
+                if (yearValue == dateFormat.minDate.year && monthIntValue < dateFormat.minDate.monthValue
+                    || yearValue == dateFormat.maxDate.year && monthIntValue > dateFormat.maxDate.monthValue
+                ) {
+                    return false
+                }
+                if (day.isComplete) {
+                    if (yearValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue && day.intValue < dateFormat.minDate.dayOfMonth
+                        || yearValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth
+                    ) {
+                        return false
+                    }
+                }
+                if (day.count == 1) {
+                    if (yearValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue && day.intValue < dateFormat.minDate.dayOfMonth / 10
+                        || yearValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                    ) {
+                        return false
+                    }
+                }
+                return true
+            } else {
+                if (yearValue == dateFormat.minDate.year && monthIntValue < dateFormat.minDate.monthValue / 10
+                    || yearValue == dateFormat.maxDate.year && monthIntValue > dateFormat.maxDate.monthValue / 10
+                ) {
+                    return false
+                }
+                if (day.isComplete) {
+                    if (yearValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue / 10
+                        && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12 && day.intValue < dateFormat.minDate.dayOfMonth
+                        || yearValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue / 10
+                        && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10 && day.intValue > dateFormat.maxDate.dayOfMonth
+                    ) {
+                        return false
+                    }
+                }
+                if (day.count == 1) {
+                    if (yearValue == dateFormat.minDate.year && monthIntValue == dateFormat.minDate.monthValue / 10
+                        && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12 && day.intValue < dateFormat.minDate.dayOfMonth / 10
+                        || yearValue == dateFormat.maxDate.year && monthIntValue == dateFormat.maxDate.monthValue / 10
+                        && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10 && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                    ) {
+                        return false
+                    }
+                }
+                return true
+            }
+        }
+        return true
+    }
+
+    private fun isMonthInRange(
+        month: DateFieldValue,
+        day: DateFieldValue,
+        dateFormat: DateFormat
+    ): Boolean {
+        val period =
+            Period.between(dateFormat.minDate.toLocalDate(), dateFormat.maxDate.toLocalDate())
+        if (period.years >= 1) {
+            return true
+        }
+        if (dateFormat.minDate.year == dateFormat.maxDate.year) {
+            return if (month.isComplete) {
+                month.intValue in dateFormat.minDate.monthValue..dateFormat.maxDate.monthValue
+            } else {
+                month.intValue in (dateFormat.minDate.monthValue / 10)..(dateFormat.maxDate.monthValue / 10)
+            }
+        } else {
+            return if (month.isComplete) {
+                if (day.isComplete) {
+                    if (month.intValue == dateFormat.minDate.monthValue && day.intValue < dateFormat.minDate.dayOfMonth
+                        || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth
+                    ) {
+                        return false
+                    }
+                } else if (day.count == 1) {
+                    if (month.intValue == dateFormat.minDate.monthValue && day.intValue < dateFormat.minDate.dayOfMonth / 10
+                        || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                    ) {
+                        return false
+                    }
+                }
+                month.intValue !in dateFormat.maxDate.monthValue + 1 until dateFormat.minDate.monthValue
+            } else {
+                if (day.isComplete) {
+                    if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
+                        && day.intValue < dateFormat.minDate.dayOfMonth && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
+                        || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth
+                    ) {
+                        return false
+                    }
+                } else if (day.count == 1) {
+                    if (month.intValue == dateFormat.minDate.monthValue / 10 && dateFormat.minDate.monthValue == 9 || dateFormat.minDate.monthValue == 12
+                        && day.intValue < dateFormat.minDate.dayOfMonth / 10 && dateFormat.maxDate.monthValue == 1 || dateFormat.maxDate.monthValue == 10
+                        || month.intValue == dateFormat.maxDate.monthValue && day.intValue > dateFormat.maxDate.dayOfMonth / 10
+                    ) {
+                        return false
+                    }
+                }
+                true
+            }
+        }
+    }
+
+    private fun basicValidateMonth(
+        month: DateFieldValue,
+        day: DateFieldValue,
+        year: DateFieldValue,
+        dateFormat: DateFormat
+    ): Boolean {
+        val monthIntValue = month.intValue
+        return if (month.isComplete) {
+            if (!dateFormat.getRange(DateField.Month).contains(monthIntValue)) {
+                return false
+            }
+            if (!year.isComplete || !day.isComplete) {
+                !day.isComplete || day.intValue <= getMaxMonthValue(
+                    monthIntValue
+                )
+            } else isDateExists(
+                day.intValue,
+                monthIntValue,
+                year.intValue
+            )
+        } else monthIntValue <= 1
     }
 
     private fun validateYear(
@@ -369,29 +358,6 @@ internal object DateValidator {
             }
         }
         return true
-    }
-
-    private fun basicValidateMonth(
-        month: DateFieldValue,
-        day: DateFieldValue,
-        year: DateFieldValue,
-        dateFormat: DateFormat
-    ): Boolean {
-        val monthIntValue = month.intValue
-        return if (month.isComplete) {
-            if (!dateFormat.getRange(DateField.Month).contains(monthIntValue)) {
-                return false
-            }
-            if (!year.isComplete || !day.isComplete) {
-                !day.isComplete || day.intValue <= getMaxMonthValue(
-                    monthIntValue
-                )
-            } else isDateExists(
-                day.intValue,
-                monthIntValue,
-                year.intValue
-            )
-        } else monthIntValue <= 1
     }
 
     private fun basicValidateDay(
