@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import org.threeten.bp.LocalDate
 
-object Utils {
+internal object Utils {
     fun localDateToFieldMap(date: LocalDate?): SnapshotStateMap<DateField, DateFieldValue> {
         val map = mutableStateMapOf(
             DateField.Day to DateFieldValue(DateField.Day, 2),

@@ -1,6 +1,6 @@
 package com.lanars.compose.datetextfield
 
-sealed class DateField {
+internal sealed class DateField {
     abstract val length: Int
     abstract val placeholderRes: Int
 
