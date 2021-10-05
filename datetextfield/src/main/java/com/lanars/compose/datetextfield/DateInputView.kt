@@ -23,14 +23,17 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.lanars.compose.datetextfield.DateValidator.validateDate
+import com.lanars.compose.datetextfield.Utils.localDateToFieldMap
 import org.threeten.bp.LocalDate
 
 /**
@@ -42,6 +45,7 @@ import org.threeten.bp.LocalDate
  * @param maxDate maximum allowed date
  * @param onValueChange this callback is triggered when field value has changed. An updated object comes as a parameter of the callback
  * @param onEditingComplete this callback is triggered when date is fully entered. A completed LocalDate object comes as a parameter of the callback
+ * @param value preset value (must be greater than or equal to minDate and less than or equal to maxDate)
  * @param contentTextStyle optional content text style configuration
  * @param hintTextStyle optional hint text style configuration
  * @param cursorBrush optional cursor style configuration
@@ -58,6 +62,7 @@ fun DateTextField(
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
     onValueChange: (FieldsData) -> Unit = {},
     onEditingComplete: (LocalDate) -> Unit,
+    value: LocalDate? = null,
     contentTextStyle: TextStyle = TextStyle.Default,
     hintTextStyle: TextStyle = TextStyle.Default.copy(color = Color.Gray),
     cursorBrush: Brush = SolidColor(Color.Black),
@@ -65,6 +70,9 @@ fun DateTextField(
     padding: DateDigitsPadding = DateDigitsPadding(horizontal = 4.dp, vertical = 0.dp),
     readOnly: Boolean = false
 ) {
+    require(maxDate >= minDate) { "The maximum date cannot be less than the minimum date" }
+    require(value == null || value in minDate..maxDate) { "Value must be greater than or equal to minDate and less than or equal to maxDate" }
+
     val dateFormat by remember {
         val factory = DateFormat.Factory()
         factory.minDate = minDate.atTime(0, 0)
@@ -74,11 +82,7 @@ fun DateTextField(
     }
 
     val fieldValues = remember {
-        mutableMapOf(
-            DateField.Day to DateFieldValue(DateField.Day, 2),
-            DateField.Month to DateFieldValue(DateField.Month, 2),
-            DateField.Year to DateFieldValue(DateField.Year, 4)
-        )
+        localDateToFieldMap(value)
     }
 
     val focusRequestersMap = mapOf(
@@ -249,6 +253,9 @@ internal fun DateInputField(
                 mutableStateOf(-1)
             }
 
+            val textFieldStringValue =
+                if (values[dateField]!!.values[i] == -1) "" else values[dateField]!!.values[i].toString()
+
             SingleInputField(
                 modifier = Modifier
                     .focusRequester(focusRequesters[dateField]!![i])
@@ -304,7 +311,7 @@ internal fun DateInputField(
                 dateField = dateField,
                 contentTextStyle = contentTextStyle,
                 hintTextStyle = hintTextStyle,
-                value = if (values[dateField]!!.values[i] == -1) "" else values[dateField]!!.values[i].toString(),
+                value = textFieldStringValue,
                 onChange = { newValue, fieldType ->
 
                     previousValue = values[dateField]!!.values[i]
@@ -385,8 +392,10 @@ internal fun InputEditText(
     cursorBrush: Brush
 ) {
     BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
+        value = TextFieldValue(value, selection = TextRange(value.length)),
+        onValueChange = {
+            onValueChange(it.text)
+        },
         modifier = modifier,
         textStyle = contentTextStyle,
         decorationBox = { innerTextField ->

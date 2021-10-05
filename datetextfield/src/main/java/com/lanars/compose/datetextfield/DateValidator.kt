@@ -513,7 +513,7 @@ internal object DateValidator {
             return false
         }
         val pow = 10.0.pow(yearValues.size - a.toDouble()).toInt()
-        val range: Range<*> = Range.create(min, max) //dateFormat.getRange(DateField.Year)
+        val range: Range<*> = Range.create(min, max)
         for (intValue in range.upper as Int downTo range.lower as Int) {
             if (intValue / pow == year) {
                 return true
