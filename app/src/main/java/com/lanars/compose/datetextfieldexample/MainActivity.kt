@@ -41,8 +41,8 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             format = Format.DDMMYYYY,
-                            minDate = LocalDate.of(2009, 8, 27),
-                            maxDate = LocalDate.of(2020, 9, 17),
+                            minDate = LocalDate.of(2000, 12, 2),
+                            maxDate = LocalDate.of(2020, 12, 30),
                             onValueChange = {
                                 Log.d(
                                     "DateInput",
@@ -53,7 +53,8 @@ class MainActivity : ComponentActivity() {
                             contentTextStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
                             hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
                             delimiter = '.',
-                            padding = DateDigitsPadding(6.dp)
+                            padding = DateDigitsPadding(6.dp),
+                            value = LocalDate.of(2020, 12, 12)
                         )
                     }
                 }

@@ -61,7 +61,19 @@ DateTextField(
     },
     // Get LocalDate object when date is entered
     onEditingComplete = { Log.d("DateInput", it.toString()) },
-    // Apply custom text style
-    textStyle = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 30.sp),
+    // Preset date value
+    value = LocalDate.of(2020, 12, 12)
+    // Apply custom text style to content
+    contentTextStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
+    // Apply custom text style to hint
+    hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
+    // Apply custom style to cursor
+    cursorBrush = SolidColor(Color.Red),
+    // Set custom delimiter
+    delimiter = '.',
+    // Set padding between digits
+    padding = DateDigitsPadding(6.dp)
+    // You can set field to be readonly
+    readOnly = true
 )
 ```

@@ -70,6 +70,7 @@ internal class DateFormat private constructor(builder: Builder) {
         }
 
         fun createDefaultFormat(): DateFormat {
+            require(maxDate >= minDate) { "The maximum date cannot be less than the minimum date" }
             val builder = Builder()
             addMonthBounds(builder)
             addDayBounds(builder)
@@ -79,6 +80,7 @@ internal class DateFormat private constructor(builder: Builder) {
         }
 
         fun createSpecificFormat(format: Format): Optional<DateFormat> {
+            require(maxDate >= minDate) { "The maximum date cannot be less than the minimum date" }
             val split = format.format.split("/").toTypedArray()
             if (split.size != 3) {
                 return Optional.empty()
