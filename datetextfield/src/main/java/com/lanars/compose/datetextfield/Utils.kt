@@ -2,7 +2,7 @@ package com.lanars.compose.datetextfield
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 
 internal object Utils {
     fun localDateToFieldMap(date: LocalDate?): SnapshotStateMap<DateField, DateFieldValue> {

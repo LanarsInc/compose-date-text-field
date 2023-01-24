@@ -20,7 +20,7 @@ import com.lanars.compose.datetextfield.DateDigitsPadding
 import com.lanars.compose.datetextfield.DateTextField
 import com.lanars.compose.datetextfield.Format
 import com.lanars.compose.datetextfieldexample.ui.theme.DateTextFieldExampleTheme
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi

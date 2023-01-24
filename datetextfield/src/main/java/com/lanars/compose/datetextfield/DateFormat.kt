@@ -2,7 +2,7 @@ package com.lanars.compose.datetextfield
 
 import android.annotation.SuppressLint
 import android.text.TextUtils
-import org.threeten.bp.LocalDateTime
+import java.time.LocalDateTime
 import java.util.*
 
 internal class DateFormat private constructor(builder: Builder) {

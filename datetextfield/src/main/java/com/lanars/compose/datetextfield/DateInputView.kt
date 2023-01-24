@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import com.lanars.compose.datetextfield.DateValidator.validateDate
 import com.lanars.compose.datetextfield.Utils.localDateToFieldMap
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 
 /**
  * Date text field with on the fly validation
@@ -271,7 +271,7 @@ internal fun DateInputField(
                                 }
                                 else -> {
                                     val emptyPosition =
-                                        values[dateField]!!.values.indexOfFirst { it == -1 }
+                                        values[dateField]!!.values.indexOfFirst {index-> index == -1 }
                                     focusRequesters[dateField]!![emptyPosition].requestFocus()
                                 }
                             }
