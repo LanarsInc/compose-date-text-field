@@ -85,11 +85,13 @@ fun DateTextField(
         localDateToFieldMap(value)
     }
 
-    val focusRequestersMap = mapOf(
-        DateField.Day to (0 until DateField.Day.length).map { FocusRequester() },
-        DateField.Month to (0 until DateField.Month.length).map { FocusRequester() },
-        DateField.Year to (0 until DateField.Year.length).map { FocusRequester() }
-    )
+    val focusRequestersMap = remember {
+        mapOf(
+            DateField.Day to (0 until DateField.Day.length).map { FocusRequester() },
+            DateField.Month to (0 until DateField.Month.length).map { FocusRequester() },
+            DateField.Year to (0 until DateField.Year.length).map { FocusRequester() }
+        )
+    }
 
     val maxWidthMap = remember {
         mutableStateMapOf(
@@ -145,8 +147,10 @@ fun DateTextField(
                                     if (!fieldValues[dateFormat.fields[i]]!!.isComplete) {
                                         val emptyPosition =
                                             fieldValues[dateFormat.fields[i]]!!.values.indexOfFirst { it == -1 }
-                                        if (emptyPosition != -1) {
-                                            focusRequestersMap[dateFormat.fields.elementAt(i)]!![emptyPosition].requestFocus()
+                                        if (emptyPosition > -1) {
+                                            kotlin.runCatching {
+                                                focusRequestersMap[dateFormat.fields.elementAt(i)]!![emptyPosition].requestFocus()
+                                            }
                                             break
                                         }
                                     }
@@ -271,7 +275,7 @@ internal fun DateInputField(
                                 }
                                 else -> {
                                     val emptyPosition =
-                                        values[dateField]!!.values.indexOfFirst {index-> index == -1 }
+                                        values[dateField]!!.values.indexOfFirst { index -> index == -1 }
                                     focusRequesters[dateField]!![emptyPosition].requestFocus()
                                 }
                             }
