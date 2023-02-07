@@ -5,9 +5,12 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -33,29 +36,33 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        DateTextField(
-                            modifier = Modifier.onFocusChanged {
-                                Log.d(
-                                    "DateInput",
-                                    it.toString()
-                                )
-                            },
-                            format = Format.DDMMYYYY,
-                            minDate = LocalDate.of(2000, 12, 2),
-                            maxDate = LocalDate.of(2020, 12, 30),
-                            onValueChange = {
-                                Log.d(
-                                    "DateInput",
-                                    "Day: ${it.day.joinToString()}; Month: ${it.month.joinToString()}; Year: ${it.year.joinToString()}"
-                                )
-                            },
-                            onEditingComplete = { Log.d("DateInput", it.toString()) },
-                            contentTextStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
-                            hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
-                            delimiter = '.',
-                            padding = DateDigitsPadding(6.dp),
-                            value = LocalDate.of(2020, 12, 12)
-                        )
+                        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+
+                            Text(text = "Min date: 02/12/2000 - Max date 30/12/2100", style = TextStyle(fontSize = 12.sp, color = Color.DarkGray))
+                            DateTextField(
+                                modifier = Modifier.onFocusChanged {
+                                    Log.d(
+                                        "DateInput",
+                                        it.toString()
+                                    )
+                                },
+                                format = Format.DDMMYYYY,
+                                minDate = LocalDate.of(2000, 12, 2),
+                                maxDate = LocalDate.of(2100, 12, 30),
+                                onValueChange = {
+                                    Log.d(
+                                        "DateInput",
+                                        "Day: ${it.day.joinToString()}; Month: ${it.month.joinToString()}; Year: ${it.year.joinToString()}"
+                                    )
+                                },
+                                onEditingComplete = { Log.d("DateInput", it.toString()) },
+                                contentTextStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
+                                hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
+                                delimiter = '.',
+                                padding = DateDigitsPadding(6.dp),
+                                value = LocalDate.of(2020, 12, 12)
+                            )
+                        }
                     }
                 }
             }
