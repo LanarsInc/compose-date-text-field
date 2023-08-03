@@ -4,10 +4,15 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -16,8 +21,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.lanars.compose.datetextfield.DateDigitsPadding
 import com.lanars.compose.datetextfield.DateTextField
+import com.lanars.compose.datetextfield.DateTextField2
 import com.lanars.compose.datetextfield.Format
 import com.lanars.compose.datetextfieldexample.ui.theme.DateTextFieldExampleTheme
 import org.threeten.bp.LocalDate
@@ -26,13 +33,22 @@ class MainActivity : ComponentActivity() {
     @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
+            var dateValue by remember { mutableStateOf<LocalDate?>(null) }
+
             DateTextFieldExampleTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    Box(
+                    Column(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        verticalArrangement = Arrangement.spacedBy(
+                            32.dp,
+                            Alignment.CenterVertically
+                        )
                     ) {
+                        DateTextField2()
+
                         DateTextField(
                             modifier = Modifier.onFocusChanged {
                                 Log.d(
@@ -54,7 +70,7 @@ class MainActivity : ComponentActivity() {
                             hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
                             delimiter = '.',
                             padding = DateDigitsPadding(6.dp),
-                            value = LocalDate.of(2020, 12, 12)
+                            value = dateValue
                         )
                     }
                 }

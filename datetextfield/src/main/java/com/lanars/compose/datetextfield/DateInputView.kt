@@ -2,12 +2,23 @@ package com.lanars.compose.datetextfield
 
 import android.content.Context
 import android.view.KeyEvent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -17,7 +28,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
@@ -85,11 +100,13 @@ fun DateTextField(
         localDateToFieldMap(value)
     }
 
-    val focusRequestersMap = mapOf(
-        DateField.Day to (0 until DateField.Day.length).map { FocusRequester() },
-        DateField.Month to (0 until DateField.Month.length).map { FocusRequester() },
-        DateField.Year to (0 until DateField.Year.length).map { FocusRequester() }
-    )
+    val focusRequestersMap = remember {
+        mutableStateMapOf(
+            DateField.Day to (0 until DateField.Day.length).map { FocusRequester() },
+            DateField.Month to (0 until DateField.Month.length).map { FocusRequester() },
+            DateField.Year to (0 until DateField.Year.length).map { FocusRequester() }
+        )
+    }
 
     val maxWidthMap = remember {
         mutableStateMapOf(
@@ -235,9 +252,11 @@ internal fun DateInputField(
                     values[dateField]!!.isComplete -> {
                         focusRequesters[dateField]!![length - 1].requestFocus()
                     }
+
                     values[dateField]!!.isEmpty -> {
                         focusRequesters[dateField]!![0].requestFocus()
                     }
+
                     else -> {
                         val emptyPosition =
                             values[dateField]!!.values.indexOfFirst { it == -1 }
@@ -266,9 +285,11 @@ internal fun DateInputField(
                                 values[dateField]!!.isComplete -> {
                                     focusRequesters[dateField]!![length - 1].requestFocus()
                                 }
+
                                 values[dateField]!!.isEmpty -> {
                                     focusRequesters[dateField]!![0].requestFocus()
                                 }
+
                                 else -> {
                                     val emptyPosition =
                                         values[dateField]!!.values.indexOfFirst { it == -1 }
@@ -345,10 +366,13 @@ internal fun SingleInputField(
     padding: DateDigitsPadding,
     readOnly: Boolean
 ) {
+    var fieldValue by remember { mutableStateOf("") }
+
     val inputTextModifier = when (maxWidthMap[dateField]) {
         0.0f -> modifier
             .padding(end = padding.end)
             .width(IntrinsicSize.Min)
+
         else -> modifier.width(maxWidthMap[dateField]!!.dp)
     }
     InputEditText(
@@ -359,9 +383,12 @@ internal fun SingleInputField(
         ),
         value = value,
         onValueChange = {
-            if (it.isDigitsOnly()) {
-                if (it.length <= 1) {
-                    onChange(it, dateField)
+            if (fieldValue != it) {
+                fieldValue = it
+                if (it.isDigitsOnly()) {
+                    if (it.length <= 1) {
+                        onChange(it, dateField)
+                    }
                 }
             }
         },
