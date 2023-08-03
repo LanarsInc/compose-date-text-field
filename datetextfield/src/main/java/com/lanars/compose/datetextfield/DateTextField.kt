@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,15 +16,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalTextInputService
-import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -51,13 +50,13 @@ fun DateTextField2(
             value = dayValue,
             onValueChange = {
                 dayValue = it
+                if (it.length == 2) {
+                    monthFocusRequester.requestFocus()
+                }
             },
             length = 2,
             placeholder = 'D',
             modifier = Modifier.focusRequester(dayFocusRequester),
-            /*onFinished = {
-                monthFocusRequester.requestFocus()
-            }*/
         )
 
         delimiterText()
@@ -66,19 +65,13 @@ fun DateTextField2(
             value = monthValue,
             onValueChange = {
                 monthValue = it
+                if (it.length == 2) {
+                    yearFocusRequester.requestFocus()
+                }
             },
             length = 2,
             placeholder = 'M',
             modifier = Modifier.focusRequester(monthFocusRequester),
-            /*onFinished = {
-                yearFocusRequester.requestFocus()
-            },
-            onCleared = {
-                dayFocusRequester.requestFocus()
-                if (it) {
-                    dayValue = dayValue.substring(0 until dayValue.length - 1)
-                }
-            }*/
         )
 
         delimiterText()
@@ -91,12 +84,6 @@ fun DateTextField2(
             length = 4,
             placeholder = 'Y',
             modifier = Modifier.focusRequester(yearFocusRequester),
-            /*onCleared = {
-                monthFocusRequester.requestFocus()
-                if (it) {
-                    monthValue = monthValue.substring(0 until monthValue.length - 1)
-                }
-            }*/
         )
     }
 }
@@ -107,34 +94,41 @@ internal fun DateInputSection(
     onValueChange: (String) -> Unit,
     length: Int,
     placeholder: Char,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    horizontalSpacing: Dp = DateTextFieldDefaults.CharSpacing,
+    textStyle: TextStyle = LocalTextStyle.current
 ) {
     BasicTextField(
         value = value,
-        modifier = modifier,
         onValueChange = {
             if (it.length <= length) {
                 onValueChange(it)
             }
         },
+        modifier = modifier,
+        maxLines = 1,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
         decorationBox = {
-            Box {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
-                ) {
-                    repeat(length) { index ->
-                        val char = value.getOrNull(index)?.toString()
-                        Box {
-                            if (char != null) {
-                                Text(char, style = MaterialTheme.typography.h3)
-                            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(
+                    horizontalSpacing,
+                    Alignment.CenterHorizontally
+                )
+            ) {
+                repeat(length) { index ->
+                    val char = value.getOrNull(index)?.toString()
+                    Box {
+                        char?.let {
                             Text(
-                                placeholder.toString(),
-                                style = MaterialTheme.typography.h3.copy(color = Color.Gray),
-                                modifier = Modifier.alpha(if (char == null) 1f else 0f)
+                                it,
+                                style = MaterialTheme.typography.h3
                             )
                         }
+                        Text(
+                            placeholder.toString(),
+                            style = MaterialTheme.typography.h3.copy(color = Color.Gray),
+                            modifier = Modifier.alpha(if (char == null) 1f else 0f)
+                        )
                     }
                 }
             }
@@ -182,6 +176,7 @@ LaunchedEffect((isFocused && value.length == index) || (isFocused && value.lengt
     }
 }*/
 
+/*
 fun Modifier.startInputSession() = composed {
     val textInputService = LocalTextInputService.current
 
@@ -193,4 +188,4 @@ fun Modifier.startInputSession() = composed {
     )
 
     this
-}
+}*/
