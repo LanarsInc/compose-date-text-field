@@ -1,12 +1,12 @@
 package com.lanars.compose.datetextfield
 
+import android.view.KeyEvent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +20,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -49,9 +51,11 @@ fun DateTextField2(
         DateInputSection(
             value = dayValue,
             onValueChange = {
-                dayValue = it
-                if (it.length == 2) {
+                if (it.length == 2 && dayValue.length != 2) {
                     monthFocusRequester.requestFocus()
+                }
+                if (it.length <= 2) {
+                    dayValue = it
                 }
             },
             length = 2,
@@ -64,14 +68,28 @@ fun DateTextField2(
         DateInputSection(
             value = monthValue,
             onValueChange = {
-                monthValue = it
-                if (it.length == 2) {
+                if (it.length == 2 && monthValue.length != 2) {
                     yearFocusRequester.requestFocus()
+                }
+                if (it.length <= 2) {
+                    monthValue = it
                 }
             },
             length = 2,
             placeholder = 'M',
-            modifier = Modifier.focusRequester(monthFocusRequester),
+            modifier = Modifier
+                .focusRequester(monthFocusRequester)
+                .onPreviewKeyEvent { event ->
+                    if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL &&
+                        event.type == KeyEventType.KeyDown && monthValue.isEmpty()
+                    ) {
+                        dayFocusRequester.requestFocus()
+                        if (dayValue.length == 2) {
+                            dayValue = dayValue.substring(0..0)
+                        }
+                    }
+                    false
+                },
         )
 
         delimiterText()
@@ -79,32 +97,41 @@ fun DateTextField2(
         DateInputSection(
             value = yearValue,
             onValueChange = {
-                yearValue = it
+                if (it.length <= 4) {
+                    yearValue = it
+                }
             },
             length = 4,
             placeholder = 'Y',
-            modifier = Modifier.focusRequester(yearFocusRequester),
+            modifier = Modifier
+                .focusRequester(yearFocusRequester)
+                .onPreviewKeyEvent { event ->
+                    if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL &&
+                        event.type == KeyEventType.KeyDown && yearValue.isEmpty()
+                    ) {
+                        monthFocusRequester.requestFocus()
+                        if (monthValue.length == 2) {
+                            monthValue = monthValue.substring(0..0)
+                        }
+                    }
+                    false
+                },
         )
     }
 }
 
 @Composable
-internal fun DateInputSection(
+fun DateInputSection(
     value: String,
     onValueChange: (String) -> Unit,
     length: Int,
     placeholder: Char,
     modifier: Modifier = Modifier,
-    horizontalSpacing: Dp = DateTextFieldDefaults.CharSpacing,
-    textStyle: TextStyle = LocalTextStyle.current
+    horizontalSpacing: Dp = DateTextFieldDefaults.CharSpacing
 ) {
     BasicTextField(
         value = value,
-        onValueChange = {
-            if (it.length <= length) {
-                onValueChange(it)
-            }
-        },
+        onValueChange = onValueChange,
         modifier = modifier,
         maxLines = 1,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
@@ -116,8 +143,107 @@ internal fun DateInputSection(
                 )
             ) {
                 repeat(length) { index ->
-                    val char = value.getOrNull(index)?.toString()
+                    val digit = value.getOrNull(index)?.toString()
                     Box {
+                        if (digit != null) {
+                            Text(
+                                digit,
+                                style = MaterialTheme.typography.h3
+                            )
+                        }
+                        Text(
+                            placeholder.toString(),
+                            style = MaterialTheme.typography.h3.copy(color = Color.Gray),
+                            modifier = Modifier.alpha(if (digit == null) 1f else 0f)
+                        )
+                    }
+                }
+            }
+        }
+    )
+}
+
+
+/*@Composable
+internal fun DateInputSection(
+    value: String,
+    onValueChange: (String) -> Unit,
+    length: Int,
+    placeholder: Char,
+    modifier: Modifier = Modifier,
+    horizontalSpacing: Dp = DateTextFieldDefaults.CharSpacing,
+    textStyle: TextStyle = LocalTextStyle.current,
+    moveBack: () -> Unit = {}
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    BasicTextField(
+        value = value,
+        onValueChange = {
+            onValueChange(it)
+        },
+        modifier = modifier
+            .onFocusChanged {
+                isFocused = it.isFocused
+            }
+            .onPreviewKeyEvent { event ->
+                if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL && value.isEmpty()) {
+                    moveBack()
+                    return@onPreviewKeyEvent true
+                }
+                return@onPreviewKeyEvent false
+            },
+        maxLines = 1,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+        decorationBox = {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(
+                    horizontalSpacing,
+                    Alignment.CenterHorizontally
+                )
+            ) {
+                repeat(length) { index ->
+                    val cursorAlpha = remember { Animatable(1f) }
+                    LaunchedEffect((isFocused && value.length == index) || (isFocused && value.length == length && index == length - 1)) {
+                        // Animate the cursor even when animations are disabled by the system.
+                        cursorAlpha.snapTo(1f)
+                        // then start the cursor blinking on animation clock (500ms on to start)
+                        cursorAlpha.animateTo(0f,
+                            infiniteRepeatable(
+                                animation = keyframes {
+                                    durationMillis = 1000
+                                    1f at 0
+                                    1f at 499
+                                    0f at 500
+                                    0f at 999
+                                }
+                            )
+                        )
+                    }
+
+                    val char = value.getOrNull(index)?.toString()
+                    Box(
+                        modifier = Modifier.drawWithContent {
+                            drawContent()
+                            if (isFocused && value.length == index) {
+                                drawLine(
+                                    brush = SolidColor(Color.Magenta),
+                                    start = Offset(0f, 0f),
+                                    end = Offset(0f, size.height),
+                                    strokeWidth = 2.dp.toPx(),
+                                    alpha = cursorAlpha.value
+                                )
+                            } else if (isFocused && value.length == length && index == length - 1) {
+                                drawLine(
+                                    brush = SolidColor(Color.Magenta),
+                                    start = Offset(size.width, 0f),
+                                    end = Offset(size.width, size.height),
+                                    strokeWidth = 2.dp.toPx(),
+                                    alpha = cursorAlpha.value
+                                )
+                            }
+                        }
+                    ) {
                         char?.let {
                             Text(
                                 it,
@@ -134,7 +260,7 @@ internal fun DateInputSection(
             }
         }
     )
-}
+}*/
 
 /*
 val cursorAlpha = remember { Animatable(1f) }
