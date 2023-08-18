@@ -1,6 +1,5 @@
 package com.lanars.compose.datetextfield.new
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
@@ -103,7 +102,6 @@ fun DateTextField3(
     ) {
         val cursorAlpha = remember { Animatable(1f) }
         LaunchedEffect(state.dayValue, state.monthValue, state.yearValue, state.focusedField) {
-            Log.d("DateTextField3", "DateTextField3: cursor effect")
             // Animate the cursor even when animations are disabled by the system.
             cursorAlpha.snapTo(1f)
             // then start the cursor blinking on animation clock (500ms on to start)
