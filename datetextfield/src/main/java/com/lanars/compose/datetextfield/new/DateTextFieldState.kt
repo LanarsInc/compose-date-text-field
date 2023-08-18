@@ -2,6 +2,7 @@ package com.lanars.compose.datetextfield.new
 
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -15,93 +16,79 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 import com.lanars.compose.datetextfield.DateField
 import com.lanars.compose.datetextfield.DateFieldValue
+import com.lanars.compose.datetextfield.DateFormat
 import com.lanars.compose.datetextfield.utils.empty
 
-internal class DateTextFieldState {
-    private var dayFieldState by mutableStateOf(DateFieldValue(DateField.Day))
-
-    private var monthFieldState by mutableStateOf(DateFieldValue(DateField.Month))
-
-    private var yearFieldState by mutableStateOf(DateFieldValue(DateField.Year))
-
-    val dayValue by derivedStateOf {
-        dayFieldState.values.filter { it >= 0 }.joinToString()
-    }
-
-    val monthValue by derivedStateOf {
-        monthFieldState.values.filter { it >= 0 }.joinToString()
-    }
-
-    val yearValue by derivedStateOf {
-        yearFieldState.values.filter { it >= 0 }.joinToString()
-    }
+internal class DateTextFieldState(
+    private val dateFormat: DateFormat
+) {
+    val fieldsState = mutableStateMapOf(
+        *dateFormat.fields.map {
+            it to DateFieldState(DateFieldValue(it), FocusRequester(), false)
+        }.toTypedArray()
+    )
 
     var focusedField by mutableStateOf<DateField?>(null)
 
     val hasFocus by derivedStateOf { focusedField != null }
 
     private val focusedFieldState: DateFieldValue?
-        get() = when (focusedField) {
-            is DateField.Day -> dayFieldState
-            is DateField.Month -> monthFieldState
-            is DateField.Year -> yearFieldState
-            else -> null
-        }
+        get() = fieldsState[focusedField]?.value
 
-    fun onKeyEvent(
-        event: KeyEvent,
-        dayFocusRequester: FocusRequester,
-        monthFocusRequester: FocusRequester,
-        yearFocusRequester: FocusRequester
-    ) {
+    fun onKeyEvent(event: KeyEvent) {
         if (event.type != KeyEventType.KeyDown || focusedFieldState == null) return
+
+        val first = fieldsState[dateFormat.fields[0]]!!
+        val second = fieldsState[dateFormat.fields[1]]!!
+        val third = fieldsState[dateFormat.fields[2]]!!
+
         when {
             event.isDigit() -> {
                 val char = event.utf16CodePoint.toChar()
                 val intValue = char.digitToInt()
                 when (focusedField) {
-                    is DateField.Day -> {
-                        if (dayFieldState.isComplete) {
-                            if (!monthFieldState.isComplete) {
-                                monthFocusRequester.requestFocus()
-                            } else if (!yearFieldState.isComplete) {
-                                yearFocusRequester.requestFocus()
+                    first.value.type -> {
+                        if (first.isComplete) {
+                            if (!second.isComplete) {
+                                second.focusRequester.requestFocus()
+                            } else if (!third.isComplete) {
+                                third.focusRequester.requestFocus()
                             }
                         } else {
-                            dayFieldState = dayFieldState.apply {
-                                setValue(intValue)
+                            fieldsState[first.value.type] = first.apply {
+                                value.setValue(intValue)
                             }
-                            if (dayFieldState.isComplete) {
-                                if (!monthFieldState.isComplete) {
-                                    monthFocusRequester.requestFocus()
-                                } else if (!yearFieldState.isComplete) {
-                                    yearFocusRequester.requestFocus()
+                            if (first.isComplete) {
+                                if (!second.isComplete) {
+                                    second.focusRequester.requestFocus()
+                                } else if (!third.isComplete) {
+                                    third.focusRequester.requestFocus()
                                 }
                             }
                         }
                     }
 
-                    is DateField.Month -> {
-                        if (monthFieldState.isComplete) {
-                            if (!yearFieldState.isComplete) {
-                                yearFocusRequester.requestFocus()
+                    second.value.type -> {
+                        if (second.isComplete) {
+                            if (!third.isComplete) {
+                                third.focusRequester.requestFocus()
                             }
                         } else {
-                            monthFieldState = monthFieldState.apply {
-                                setValue(intValue)
+                            fieldsState[second.value.type] = second.apply {
+                                value.setValue(intValue)
                             }
-                            if (monthFieldState.isComplete) {
-                                if (!yearFieldState.isComplete) {
-                                    yearFocusRequester.requestFocus()
+                            if (second.isComplete) {
+                                if (!third.isComplete) {
+                                    third.focusRequester.requestFocus()
                                 }
                             }
                         }
                     }
 
-                    is DateField.Year -> {
-                        if (!yearFieldState.isComplete) {
-                            yearFieldState = yearFieldState.apply {
-                                setValue(intValue)
+                    third.value.type -> {
+                        if (!third.isComplete) {
+                            fieldsState[third.value.type] = third.apply {
+                                value.setValue(intValue)
                             }
                         }
                     }
@@ -114,41 +101,41 @@ internal class DateTextFieldState {
 
             event.isBackspace() -> {
                 when (focusedField) {
-                    is DateField.Day -> {
-                        if (!dayFieldState.isEmpty) {
-                            dayFieldState = dayFieldState.apply {
-                                clearLast()
+                    first.value.type -> {
+                        if (!first.isEmpty) {
+                            fieldsState[first.value.type] = first.apply {
+                                value.clearLast()
                             }
                         }
                     }
 
-                    DateField.Month -> {
-                        if (!monthFieldState.isEmpty) {
-                            monthFieldState = monthFieldState.apply {
-                                clearLast()
+                    second.value.type -> {
+                        if (!second.isEmpty) {
+                            fieldsState[second.value.type] = second.apply {
+                                value.clearLast()
                             }
                         } else {
-                            if (dayFieldState.isComplete) {
-                                dayFieldState = dayFieldState.apply {
-                                    clearLast()
+                            if (first.isComplete) {
+                                fieldsState[first.value.type] = first.apply {
+                                    value.clearLast()
                                 }
                             }
-                            dayFocusRequester.requestFocus()
+                            first.focusRequester.requestFocus()
                         }
                     }
 
-                    DateField.Year -> {
-                        if (!yearFieldState.isEmpty) {
-                            yearFieldState = yearFieldState.apply {
-                                clearLast()
+                    third.value.type -> {
+                        if (!third.isEmpty) {
+                            fieldsState[third.value.type] = third.apply {
+                                value.clearLast()
                             }
                         } else {
-                            if (monthFieldState.isComplete) {
-                                monthFieldState = monthFieldState.apply {
-                                    clearLast()
+                            if (second.isComplete) {
+                                fieldsState[second.value.type] = second.apply {
+                                    value.clearLast()
                                 }
                             }
-                            monthFocusRequester.requestFocus()
+                            second.focusRequester.requestFocus()
                         }
                     }
 
@@ -161,13 +148,20 @@ internal class DateTextFieldState {
     }
 
     fun valueForField(field: DateField): String {
-        val fieldState = when (field) {
-            is DateField.Day -> dayFieldState
-            is DateField.Month -> monthFieldState
-            is DateField.Year -> yearFieldState
-        }
-        return fieldState.values.filter { it >= 0 }.joinToString(String.empty)
+        return fieldsState[field]!!.value.values.filter { it >= 0 }.joinToString(String.empty)
     }
+}
+
+internal data class DateFieldState(
+    val value: DateFieldValue,
+    val focusRequester: FocusRequester,
+    val isFocused: Boolean = false
+) {
+    val isComplete: Boolean
+        get() = value.isComplete
+
+    val isEmpty: Boolean
+        get() = value.isEmpty
 }
 
 internal fun KeyEvent.isDigit(): Boolean {

@@ -22,7 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
@@ -38,26 +37,36 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.unit.dp
 import com.lanars.compose.datetextfield.DateField
+import com.lanars.compose.datetextfield.DateFormat
+import com.lanars.compose.datetextfield.Format
+import org.threeten.bp.LocalDate
+import kotlin.jvm.optionals.getOrElse
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DateTextField3(
     modifier: Modifier = Modifier,
+    format: Format = Format.DDMMYYYY,
+    minDate: LocalDate = LocalDate.of(1900, 1, 1),
+    maxDate: LocalDate = LocalDate.of(2100, 12, 31),
     delimiter: String = "/"
 ) {
+    val dateFormat by remember {
+        val factory = DateFormat.Factory()
+        factory.minDate = minDate.atTime(0, 0)
+        factory.maxDate = maxDate.atTime(0, 0)
+        mutableStateOf(
+            factory.createSpecificFormat(format).getOrElse {
+                factory.createDefaultFormat()
+            }
+        )
+    }
+
     val textInputService = LocalTextInputService.current
 
     var inputSession by remember { mutableStateOf<TextInputSession?>(null) }
 
-    val fieldsToFocusRequesters = remember {
-        mapOf(
-            DateField.Day to FocusRequester(),
-            DateField.Month to FocusRequester(),
-            DateField.Year to FocusRequester()
-        )
-    }
-
-    val state = remember { DateTextFieldState() }
+    val state = remember { DateTextFieldState(dateFormat) }
 
     LaunchedEffect(state.hasFocus) {
         if (state.hasFocus) {
@@ -91,17 +100,17 @@ fun DateTextField3(
         modifier = modifier
             .focusGroup()
             .onKeyEvent { event ->
-                state.onKeyEvent(
-                    event,
-                    fieldsToFocusRequesters[DateField.Day]!!,
-                    fieldsToFocusRequesters[DateField.Month]!!,
-                    fieldsToFocusRequesters[DateField.Year]!!
-                )
+                state.onKeyEvent(event)
                 false
             }
     ) {
         val cursorAlpha = remember { Animatable(1f) }
-        LaunchedEffect(state.dayValue, state.monthValue, state.yearValue, state.focusedField) {
+        LaunchedEffect(
+            state.valueForField(DateField.Day),
+            state.valueForField(DateField.Month),
+            state.valueForField(DateField.Year),
+            state.focusedField
+        ) {
             // Animate the cursor even when animations are disabled by the system.
             cursorAlpha.snapTo(1f)
             // then start the cursor blinking on animation clock (500ms on to start)
@@ -118,10 +127,11 @@ fun DateTextField3(
             )
         }
 
-        fieldsToFocusRequesters.forEach { (field, focusRequester) ->
+        dateFormat.fields.forEachIndexed { index, field ->
+            val fieldState = state.fieldsState[field]!!
             Box(
                 modifier = Modifier
-                    .focusRequester(focusRequester)
+                    .focusRequester(fieldState.focusRequester)
                     .onFocusChanged {
                         if (it.isFocused) {
                             state.focusedField = field
@@ -131,7 +141,7 @@ fun DateTextField3(
                     }
                     .focusable()
                     .noRippleClickable {
-                        focusRequester.requestFocus()
+                        fieldState.focusRequester.requestFocus()
                     }
             ) {
                 Row {
@@ -174,7 +184,9 @@ fun DateTextField3(
                 }
             }
 
-            delimiterText()
+            if (index < dateFormat.fields.size - 1) {
+                delimiterText()
+            }
         }
     }
 }
