@@ -60,7 +60,7 @@ fun DateTextField3(
 
     val state = remember { DateTextFieldState() }
 
-    LaunchedEffect(state.focusedField != null) {
+    LaunchedEffect(state.hasFocus) {
         if (state.hasFocus) {
             inputSession = textInputService?.startInput(
                 value = TextFieldValue(),
