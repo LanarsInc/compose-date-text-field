@@ -17,6 +17,7 @@ import androidx.compose.ui.input.key.utf16CodePoint
 import com.lanars.compose.datetextfield.DateField
 import com.lanars.compose.datetextfield.DateFieldValue
 import com.lanars.compose.datetextfield.DateFormat
+import com.lanars.compose.datetextfield.DateValidator
 import com.lanars.compose.datetextfield.utils.empty
 
 internal class DateTextFieldState(
@@ -38,9 +39,33 @@ internal class DateTextFieldState(
     fun onKeyEvent(event: KeyEvent) {
         if (event.type != KeyEventType.KeyDown || focusedFieldState == null) return
 
-        val first = fieldsState[dateFormat.fields[0]]!!
-        val second = fieldsState[dateFormat.fields[1]]!!
-        val third = fieldsState[dateFormat.fields[2]]!!
+        val modifierFieldType = focusedField!!
+
+        val stateSnapshot = fieldsState.toMap().mapValues { entry ->
+            entry.value.copy(
+                value = entry.value.value.copy()
+            )
+        }.toMutableMap()
+
+        val first = stateSnapshot[dateFormat.fields[0]]!!
+        val second = stateSnapshot[dateFormat.fields[1]]!!
+        val third = stateSnapshot[dateFormat.fields[2]]!!
+
+        val isValid = {
+            DateValidator.validateDate(
+                modifierFieldType,
+                stateSnapshot[DateField.Day]!!.value,
+                stateSnapshot[DateField.Month]!!.value,
+                stateSnapshot[DateField.Year]!!.value,
+                dateFormat
+            )
+        }
+
+        val updateState = {
+            fieldsState[DateField.Day] = stateSnapshot[DateField.Day]!!
+            fieldsState[DateField.Month] = stateSnapshot[DateField.Month]!!
+            fieldsState[DateField.Year] = stateSnapshot[DateField.Year]!!
+        }
 
         when {
             event.isDigit() -> {
@@ -50,19 +75,35 @@ internal class DateTextFieldState(
                     first.value.type -> {
                         if (first.isComplete) {
                             if (!second.isComplete) {
-                                second.focusRequester.requestFocus()
+                                if (isValid()) {
+                                    second.focusRequester.requestFocus()
+                                    updateState()
+                                    return
+                                }
                             } else if (!third.isComplete) {
-                                third.focusRequester.requestFocus()
+                                if (isValid()) {
+                                    third.focusRequester.requestFocus()
+                                    updateState()
+                                    return
+                                }
                             }
                         } else {
-                            fieldsState[first.value.type] = first.apply {
+                            stateSnapshot[first.value.type] = first.apply {
                                 value.setValue(intValue)
                             }
                             if (first.isComplete) {
                                 if (!second.isComplete) {
-                                    second.focusRequester.requestFocus()
+                                    if (isValid()) {
+                                        second.focusRequester.requestFocus()
+                                        updateState()
+                                        return
+                                    }
                                 } else if (!third.isComplete) {
-                                    third.focusRequester.requestFocus()
+                                    if (isValid()) {
+                                        third.focusRequester.requestFocus()
+                                        updateState()
+                                        return
+                                    }
                                 }
                             }
                         }
@@ -71,15 +112,23 @@ internal class DateTextFieldState(
                     second.value.type -> {
                         if (second.isComplete) {
                             if (!third.isComplete) {
-                                third.focusRequester.requestFocus()
+                                if (isValid()) {
+                                    third.focusRequester.requestFocus()
+                                    updateState()
+                                    return
+                                }
                             }
                         } else {
-                            fieldsState[second.value.type] = second.apply {
+                            stateSnapshot[second.value.type] = second.apply {
                                 value.setValue(intValue)
                             }
                             if (second.isComplete) {
                                 if (!third.isComplete) {
-                                    third.focusRequester.requestFocus()
+                                    if (isValid()) {
+                                        third.focusRequester.requestFocus()
+                                        updateState()
+                                        return
+                                    }
                                 }
                             }
                         }
@@ -87,7 +136,7 @@ internal class DateTextFieldState(
 
                     third.value.type -> {
                         if (!third.isComplete) {
-                            fieldsState[third.value.type] = third.apply {
+                            stateSnapshot[third.value.type] = third.apply {
                                 value.setValue(intValue)
                             }
                         }
@@ -103,7 +152,7 @@ internal class DateTextFieldState(
                 when (focusedField) {
                     first.value.type -> {
                         if (!first.isEmpty) {
-                            fieldsState[first.value.type] = first.apply {
+                            stateSnapshot[first.value.type] = first.apply {
                                 value.clearLast()
                             }
                         }
@@ -111,31 +160,39 @@ internal class DateTextFieldState(
 
                     second.value.type -> {
                         if (!second.isEmpty) {
-                            fieldsState[second.value.type] = second.apply {
+                            stateSnapshot[second.value.type] = second.apply {
                                 value.clearLast()
                             }
                         } else {
                             if (first.isComplete) {
-                                fieldsState[first.value.type] = first.apply {
+                                stateSnapshot[first.value.type] = first.apply {
                                     value.clearLast()
                                 }
                             }
-                            first.focusRequester.requestFocus()
+                            if (isValid()) {
+                                first.focusRequester.requestFocus()
+                                updateState()
+                                return
+                            }
                         }
                     }
 
                     third.value.type -> {
                         if (!third.isEmpty) {
-                            fieldsState[third.value.type] = third.apply {
+                            stateSnapshot[third.value.type] = third.apply {
                                 value.clearLast()
                             }
                         } else {
                             if (second.isComplete) {
-                                fieldsState[second.value.type] = second.apply {
+                                stateSnapshot[second.value.type] = second.apply {
                                     value.clearLast()
                                 }
                             }
-                            second.focusRequester.requestFocus()
+                            if (isValid()) {
+                                second.focusRequester.requestFocus()
+                                updateState()
+                                return
+                            }
                         }
                     }
 
@@ -144,6 +201,10 @@ internal class DateTextFieldState(
                     }
                 }
             }
+        }
+
+        if (isValid()) {
+            updateState()
         }
     }
 
