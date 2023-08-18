@@ -15,6 +15,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,22 +30,61 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.threeten.bp.LocalDate
 
 @Composable
 fun DateTextField2(
-    delimiter: Char = '/'
+    modifier: Modifier = Modifier,
+    format: Format = Format.MMDDYYYY,
+    minDate: LocalDate = LocalDate.of(1900, 1, 1),
+    maxDate: LocalDate = LocalDate.of(2100, 12, 31),
+    delimiter: Char = '/',
+    value: LocalDate? = null
 ) {
+    val dateFormat by remember {
+        val factory = DateFormat.Factory()
+        factory.minDate = minDate.atTime(0, 0)
+        factory.maxDate = maxDate.atTime(0, 0)
+        mutableStateOf(factory.createSpecificFormat(format).orElseGet {
+            factory.createDefaultFormat()
+        })
+    }
+
     val delimiterText = @Composable {
         Text(
             delimiter.toString(),
             style = MaterialTheme.typography.h3.copy(Color.Gray),
             modifier = Modifier.padding(horizontal = 8.dp)
         )
+    }
+
+    // TODO: improve
+    val requesters = remember {
+        mutableStateListOf(
+            FocusRequester(),
+            FocusRequester(),
+            FocusRequester()
+        )
+    }
+
+    val values = remember {
+        mutableStateListOf(
+            "",
+            "",
+            ""
+        )
+    }
+
+    val fieldValues = remember {
+        Utils.localDateToFieldMap(value)
     }
 
     val dayFocusRequester = remember { FocusRequester() }
@@ -56,75 +96,48 @@ fun DateTextField2(
     var yearValue by remember { mutableStateOf("") }
 
     Row {
-        DateInputSection(
-            value = dayValue,
-            onValueChange = {
-                if (it.length == 2 && dayValue.length != 2) {
-                    monthFocusRequester.requestFocus()
-                }
-                if (it.length <= 2) {
-                    dayValue = it
-                }
-            },
-            length = 2,
-            placeholder = 'D',
-            modifier = Modifier.focusRequester(dayFocusRequester),
-        )
+        dateFormat.fields.forEachIndexed { index, field ->
+            val nextRequester = requesters.getOrNull(index + 1)
+            val previousRequester = requesters.getOrNull(index - 1)
 
-        delimiterText()
-
-        DateInputSection(
-            value = monthValue,
-            onValueChange = {
-                if (it.length == 2 && monthValue.length != 2) {
-                    yearFocusRequester.requestFocus()
-                }
-                if (it.length <= 2) {
-                    monthValue = it
-                }
-            },
-            length = 2,
-            placeholder = 'M',
-            modifier = Modifier
-                .focusRequester(monthFocusRequester)
-                .onPreviewKeyEvent { event ->
-                    if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL &&
-                        event.type == KeyEventType.KeyDown && monthValue.isEmpty()
-                    ) {
-                        dayFocusRequester.requestFocus()
-                        if (dayValue.length == 2) {
-                            dayValue = dayValue.substring(0..0)
-                        }
+            DateInputSection(
+                value = values[index],
+                onValueChange = {
+                    if (it.length == field.length) {
+                        nextRequester?.requestFocus()
                     }
-                    false
-                },
-        )
-
-        delimiterText()
-
-        DateInputSection(
-            value = yearValue,
-            onValueChange = {
-                if (it.length <= 4) {
-                    yearValue = it
-                }
-            },
-            length = 4,
-            placeholder = 'Y',
-            modifier = Modifier
-                .focusRequester(yearFocusRequester)
-                .onPreviewKeyEvent { event ->
-                    if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL &&
-                        event.type == KeyEventType.KeyDown && yearValue.isEmpty()
-                    ) {
-                        monthFocusRequester.requestFocus()
-                        if (monthValue.length == 2) {
-                            monthValue = monthValue.substring(0..0)
-                        }
+                    if (it.length <= field.length) {
+                        values[index] = it
+//                        fieldValues[field]?.setValue(it)
                     }
-                    false
                 },
-        )
+                length = field.length,
+                placeholder = stringResource(field.placeholderRes),
+                modifier = Modifier
+                    .focusRequester(requesters[index])
+                    .onPreviewKeyEvent { event ->
+                        if (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DEL &&
+                            event.type == KeyEventType.KeyDown && values[index].isEmpty()
+                        ) {
+                            previousRequester?.requestFocus()
+                            if (index != 0) {
+                                if (values[index - 1].length == dateFormat.fields[index - 1].length) {
+                                    values[index - 1] =
+                                        values[index - 1].substring(0 until dateFormat.fields[index - 1].length - 1)
+                                }
+                            }
+                        }
+                        if (values[index].length >= field.length && event.type == KeyEventType.KeyDown && event.key.nativeKeyCode in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9) {
+                            nextRequester?.requestFocus()
+                        }
+                        false
+                    }
+            )
+
+            if (index < dateFormat.fields.size - 1) {
+                delimiterText()
+            }
+        }
     }
 }
 
@@ -133,7 +146,7 @@ fun DateInputSection(
     value: String,
     onValueChange: (String) -> Unit,
     length: Int,
-    placeholder: Char,
+    placeholder: String,
     modifier: Modifier = Modifier,
     horizontalSpacing: Dp = DateTextFieldDefaults.CharSpacing
 ) {
@@ -204,7 +217,7 @@ fun DateInputSection(
                             )
                         }
                         Text(
-                            placeholder.toString(),
+                            placeholder,
                             style = MaterialTheme.typography.h3.copy(color = Color.Gray),
                             modifier = Modifier.alpha(if (digit == null) 1f else 0f)
                         )
