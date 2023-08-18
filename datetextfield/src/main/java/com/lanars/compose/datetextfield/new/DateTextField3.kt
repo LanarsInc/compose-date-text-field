@@ -1,5 +1,9 @@
 package com.lanars.compose.datetextfield.new
 
+import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusGroup
@@ -18,10 +22,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.stringResource
@@ -94,6 +101,25 @@ fun DateTextField3(
                 false
             }
     ) {
+        val cursorAlpha = remember { Animatable(1f) }
+        LaunchedEffect(state.dayValue, state.monthValue, state.yearValue, state.focusedField) {
+            Log.d("DateTextField3", "DateTextField3: cursor effect")
+            // Animate the cursor even when animations are disabled by the system.
+            cursorAlpha.snapTo(1f)
+            // then start the cursor blinking on animation clock (500ms on to start)
+            cursorAlpha.animateTo(0f,
+                infiniteRepeatable(
+                    animation = keyframes {
+                        durationMillis = 1000
+                        1f at 0
+                        1f at 499
+                        0f at 500
+                        0f at 999
+                    }
+                )
+            )
+        }
+
         fieldsToFocusRequesters.forEach { (field, focusRequester) ->
             Box(
                 modifier = Modifier
@@ -112,9 +138,31 @@ fun DateTextField3(
             ) {
                 Row {
                     val fieldText = state.valueForField(field)
+                    val isFocused = state.focusedField == field
                     for (i in 0 until field.length) {
                         val char = fieldText.getOrNull(i)
-                        Box {
+                        Box(
+                            modifier = Modifier.drawWithContent {
+                                drawContent()
+                                if (isFocused && fieldText.length == i) {
+                                    drawLine(
+                                        brush = SolidColor(Color.Magenta),
+                                        start = Offset(0f, 0f),
+                                        end = Offset(0f, size.height),
+                                        strokeWidth = 2.dp.toPx(),
+                                        alpha = cursorAlpha.value
+                                    )
+                                } else if (isFocused && fieldText.length == field.length && i == field.length - 1) {
+                                    drawLine(
+                                        brush = SolidColor(Color.Magenta),
+                                        start = Offset(size.width, 0f),
+                                        end = Offset(size.width, size.height),
+                                        strokeWidth = 2.dp.toPx(),
+                                        alpha = cursorAlpha.value
+                                    )
+                                }
+                            }
+                        ) {
                             Text(
                                 stringResource(field.placeholderRes),
                                 style = MaterialTheme.typography.h3.copy(Color.Gray),
