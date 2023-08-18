@@ -108,7 +108,6 @@ fun DateTextField2(
                     }
                     if (it.length <= field.length) {
                         values[index] = it
-//                        fieldValues[field]?.setValue(it)
                     }
                 },
                 length = field.length,

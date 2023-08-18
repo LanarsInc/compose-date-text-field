@@ -26,6 +26,7 @@ import com.lanars.compose.datetextfield.DateDigitsPadding
 import com.lanars.compose.datetextfield.DateTextField
 import com.lanars.compose.datetextfield.DateTextField2
 import com.lanars.compose.datetextfield.Format
+import com.lanars.compose.datetextfield.new.DateTextField3
 import com.lanars.compose.datetextfieldexample.ui.theme.DateTextFieldExampleTheme
 import org.threeten.bp.LocalDate
 
@@ -47,6 +48,8 @@ class MainActivity : ComponentActivity() {
                             Alignment.CenterVertically
                         )
                     ) {
+                        DateTextField3()
+
                         DateTextField2()
 
                         DateTextField(

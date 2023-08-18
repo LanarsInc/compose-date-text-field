@@ -7,9 +7,9 @@ import org.threeten.bp.LocalDate
 internal object Utils {
     fun localDateToFieldMap(date: LocalDate?): SnapshotStateMap<DateField, DateFieldValue> {
         val map = mutableStateMapOf(
-            DateField.Day to DateFieldValue(DateField.Day, 2),
-            DateField.Month to DateFieldValue(DateField.Month, 2),
-            DateField.Year to DateFieldValue(DateField.Year, 4)
+            DateField.Day to DateFieldValue(DateField.Day),
+            DateField.Month to DateFieldValue(DateField.Month),
+            DateField.Year to DateFieldValue(DateField.Year)
         )
         if (date != null) {
             for (field in map.values) {

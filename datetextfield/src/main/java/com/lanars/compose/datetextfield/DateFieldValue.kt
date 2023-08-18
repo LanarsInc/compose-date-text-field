@@ -3,9 +3,9 @@ package com.lanars.compose.datetextfield
 import androidx.compose.runtime.mutableStateListOf
 
 
-internal class DateFieldValue internal constructor(val type: DateField, i: Int) {
+internal class DateFieldValue internal constructor(val type: DateField) {
     val values = mutableStateListOf(
-        *((0 until i).map { -1 }.toTypedArray())
+        *((0 until type.length).map { -1 }.toTypedArray())
     )
 
     val intValue: Int
@@ -59,5 +59,17 @@ internal class DateFieldValue internal constructor(val type: DateField, i: Int) 
                 iArr[position] = value
             }
         }
+    }
+
+    fun setValue(value: Int) {
+        val position = values.indexOfFirst { it < 0 } ?: return
+        if (position < 0) return
+        setValue(position, value)
+    }
+
+    fun clearLast() {
+        val position = values.indexOfLast { it >= 0 }
+        if (position < 0) return
+        setValue(position, -1)
     }
 }
