@@ -16,8 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -33,7 +33,7 @@ import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.unit.dp
 import com.lanars.compose.datetextfield.DateField
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DateTextField3(
     modifier: Modifier = Modifier,
@@ -110,12 +110,22 @@ fun DateTextField3(
                         focusRequester.requestFocus()
                     }
             ) {
-                val fieldText = state.valueForField(field)
-                Text(
-                    stringResource(field.placeholderRes).repeat(field.length),
-                    style = MaterialTheme.typography.h3.copy(Color.Gray)
-                )
-                Text(fieldText, style = MaterialTheme.typography.h3)
+                Row {
+                    val fieldText = state.valueForField(field)
+                    for (i in 0 until field.length) {
+                        val char = fieldText.getOrNull(i)
+                        Box {
+                            Text(
+                                stringResource(field.placeholderRes),
+                                style = MaterialTheme.typography.h3.copy(Color.Gray),
+                                modifier = Modifier.alpha(if (char == null) 1f else 0f)
+                            )
+                            if (char != null) {
+                                Text(char.toString(), style = MaterialTheme.typography.h3)
+                            }
+                        }
+                    }
+                }
             }
 
             delimiterText()
