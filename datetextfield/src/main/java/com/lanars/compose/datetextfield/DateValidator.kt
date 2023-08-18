@@ -200,6 +200,8 @@ internal object DateValidator {
         year: DateFieldValue,
         dateFormat: DateFormat
     ): Boolean {
+        if (year.isEmpty) return true
+
         if (
             isYearExists(
                 year.intValue,
