@@ -72,10 +72,10 @@ internal class DateTextFieldState {
                                 setValue(intValue)
                             }
                             if (dayFieldState.isComplete) {
-                                if (monthFieldState.isComplete) {
-                                    yearFocusRequester.requestFocus()
-                                } else {
+                                if (!monthFieldState.isComplete) {
                                     monthFocusRequester.requestFocus()
+                                } else if (!yearFieldState.isComplete) {
+                                    yearFocusRequester.requestFocus()
                                 }
                             }
                         }
