@@ -21,11 +21,16 @@ import com.lanars.compose.datetextfield.DateValidator
 import com.lanars.compose.datetextfield.utils.empty
 
 internal class DateTextFieldState(
-    private val dateFormat: DateFormat
+    private val dateFormat: DateFormat,
+    private val initialValues: Map<DateField, DateFieldValue>? = null
 ) {
     val fieldsState = mutableStateMapOf(
         *dateFormat.fields.map {
-            it to DateFieldState(DateFieldValue(it), FocusRequester(), false)
+            it to DateFieldState(
+                initialValues?.get(it) ?: DateFieldValue(it),
+                FocusRequester(),
+                false
+            )
         }.toTypedArray()
     )
 

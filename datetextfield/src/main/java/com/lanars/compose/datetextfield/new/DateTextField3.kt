@@ -43,6 +43,7 @@ import com.lanars.compose.datetextfield.DateField
 import com.lanars.compose.datetextfield.DateFormat
 import com.lanars.compose.datetextfield.DateTextFieldDefaults
 import com.lanars.compose.datetextfield.Format
+import com.lanars.compose.datetextfield.Utils.localDateToFieldMap
 import org.threeten.bp.LocalDate
 import kotlin.jvm.optionals.getOrElse
 
@@ -60,7 +61,8 @@ fun DateTextField3(
     textStyle: TextStyle = DateTextFieldDefaults.MainTextStyle,
     hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle,
     readOnly: Boolean = false,
-    delimiterSpacing: Dp = DateTextFieldDefaults.DelimiterSpacing
+    delimiterSpacing: Dp = DateTextFieldDefaults.DelimiterSpacing,
+    initialValue: LocalDate? = null
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -78,7 +80,7 @@ fun DateTextField3(
 
     var inputSession by remember { mutableStateOf<TextInputSession?>(null) }
 
-    val state = remember { DateTextFieldState(dateFormat) }
+    val state = remember { DateTextFieldState(dateFormat, localDateToFieldMap(initialValue)) }
 
     val keyboardActionRunner = remember(keyboardActions) {
         KeyboardActionRunner(keyboardActions, focusManager)
