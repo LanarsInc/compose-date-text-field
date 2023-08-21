@@ -48,7 +48,10 @@ class MainActivity : ComponentActivity() {
                             Alignment.CenterVertically
                         )
                     ) {
-                        DateTextField3()
+                        DateTextField3(
+                            textStyle = MaterialTheme.typography.h3,
+                            hintTextStyle = MaterialTheme.typography.h3.copy(color = Color.Gray)
+                        )
 
                         DateTextField2()
 

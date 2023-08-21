@@ -37,6 +37,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputSession
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lanars.compose.datetextfield.DateField
 import com.lanars.compose.datetextfield.DateFormat
@@ -58,7 +59,8 @@ fun DateTextField3(
     keyboardActions: KeyboardActions = KeyboardActions(),
     textStyle: TextStyle = DateTextFieldDefaults.MainTextStyle,
     hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle,
-    readOnly: Boolean = false
+    readOnly: Boolean = false,
+    delimiterSpacing: Dp = DateTextFieldDefaults.DelimiterSpacing
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -102,7 +104,7 @@ fun DateTextField3(
         Text(
             delimiter,
             style = hintTextStyle,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier.padding(horizontal = delimiterSpacing)
         )
     }
 
