@@ -147,6 +147,7 @@ fun DateTextField3(
                     .focusable()
                     .noRippleClickable {
                         fieldState.focusRequester.requestFocus()
+                        inputSession?.showSoftwareKeyboard()
                     }
             ) {
                 Row {
