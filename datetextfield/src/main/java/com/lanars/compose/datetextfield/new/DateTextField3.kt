@@ -11,6 +11,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,16 +31,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.unit.dp
 import com.lanars.compose.datetextfield.DateField
 import com.lanars.compose.datetextfield.DateFormat
+import com.lanars.compose.datetextfield.DateTextFieldDefaults
 import com.lanars.compose.datetextfield.Format
 import org.threeten.bp.LocalDate
 import kotlin.jvm.optionals.getOrElse
@@ -51,7 +53,9 @@ fun DateTextField3(
     minDate: LocalDate = LocalDate.of(1900, 1, 1),
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
     delimiter: String = "/",
-    cursorBrush: Brush = SolidColor(MaterialTheme.colors.primary)
+    cursorBrush: Brush = SolidColor(MaterialTheme.colors.primary),
+    keyboardOptions: KeyboardOptions = DateTextFieldDefaults.KeyboardOptions,
+    keyboardActions: KeyboardActions = KeyboardActions()
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -65,28 +69,27 @@ fun DateTextField3(
     }
 
     val textInputService = LocalTextInputService.current
+    val focusManager = LocalFocusManager.current
 
     var inputSession by remember { mutableStateOf<TextInputSession?>(null) }
 
     val state = remember { DateTextFieldState(dateFormat) }
 
+    val keyboardActionRunner = remember(keyboardActions) {
+        KeyboardActionRunner(keyboardActions, focusManager)
+    }
+
     LaunchedEffect(state.hasFocus) {
         if (state.hasFocus) {
             inputSession = textInputService?.startInput(
                 value = TextFieldValue(),
-                imeOptions = ImeOptions(
-                    singleLine = true,
-                    autoCorrect = false,
-                    keyboardType = KeyboardType.NumberPassword,
-                    imeAction = ImeAction.Done
-                ),
+                imeOptions = keyboardOptions.toImeOptions(),
                 onEditCommand = { commands ->
                     // TODO: implement
                 },
-                onImeActionPerformed = { action ->
-                    // TODO: implement
-                }
+                onImeActionPerformed = keyboardActionRunner::runAction
             )
+            keyboardActionRunner.inputSession = inputSession
         }
     }
 
@@ -195,3 +198,12 @@ fun DateTextField3(
 
 internal fun Modifier.noRippleClickable(onClick: () -> Unit) =
     clickable(MutableInteractionSource(), indication = null, onClick = onClick)
+
+internal fun KeyboardOptions.toImeOptions() =
+    ImeOptions(
+        singleLine = true,
+        capitalization = capitalization,
+        autoCorrect = autoCorrect,
+        keyboardType = keyboardType,
+        imeAction = imeAction
+    )
