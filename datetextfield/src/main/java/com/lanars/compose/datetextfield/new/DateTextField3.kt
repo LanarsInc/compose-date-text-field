@@ -57,7 +57,8 @@ fun DateTextField3(
     keyboardOptions: KeyboardOptions = DateTextFieldDefaults.KeyboardOptions,
     keyboardActions: KeyboardActions = KeyboardActions(),
     textStyle: TextStyle = DateTextFieldDefaults.MainTextStyle,
-    hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle
+    hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle,
+    readOnly: Boolean = false
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -81,8 +82,8 @@ fun DateTextField3(
         KeyboardActionRunner(keyboardActions, focusManager)
     }
 
-    LaunchedEffect(state.hasFocus) {
-        if (state.hasFocus) {
+    LaunchedEffect(state.hasFocus, readOnly) {
+        if (state.hasFocus && !readOnly) {
             inputSession = textInputService?.startInput(
                 value = TextFieldValue(),
                 imeOptions = keyboardOptions.toImeOptions(),
@@ -92,6 +93,8 @@ fun DateTextField3(
                 onImeActionPerformed = keyboardActionRunner::runAction
             )
             keyboardActionRunner.inputSession = inputSession
+        } else {
+            inputSession?.let { textInputService?.stopInput(it) }
         }
     }
 
@@ -147,7 +150,9 @@ fun DateTextField3(
                         }
                     }
                     .focusable()
-                    .noRippleClickable {
+                    .noRippleClickable(
+                        enabled = !readOnly
+                    ) {
                         fieldState.focusRequester.requestFocus()
                         inputSession?.showSoftwareKeyboard()
                     }
@@ -199,8 +204,10 @@ fun DateTextField3(
     }
 }
 
-internal fun Modifier.noRippleClickable(onClick: () -> Unit) =
-    clickable(MutableInteractionSource(), indication = null, onClick = onClick)
+internal fun Modifier.noRippleClickable(
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) = clickable(MutableInteractionSource(), indication = null, enabled = enabled, onClick = onClick)
 
 internal fun KeyboardOptions.toImeOptions() =
     ImeOptions(
