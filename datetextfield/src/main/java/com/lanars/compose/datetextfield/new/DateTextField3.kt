@@ -28,12 +28,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputSession
@@ -55,7 +55,9 @@ fun DateTextField3(
     delimiter: String = "/",
     cursorBrush: Brush = SolidColor(MaterialTheme.colors.primary),
     keyboardOptions: KeyboardOptions = DateTextFieldDefaults.KeyboardOptions,
-    keyboardActions: KeyboardActions = KeyboardActions()
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    textStyle: TextStyle = DateTextFieldDefaults.MainTextStyle,
+    hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -96,7 +98,7 @@ fun DateTextField3(
     val delimiterText = @Composable {
         Text(
             delimiter,
-            style = MaterialTheme.typography.h3.copy(Color.Gray),
+            style = hintTextStyle,
             modifier = Modifier.padding(horizontal = 8.dp)
         )
     }
@@ -179,11 +181,11 @@ fun DateTextField3(
                         ) {
                             Text(
                                 stringResource(field.placeholderRes),
-                                style = MaterialTheme.typography.h3.copy(Color.Gray),
+                                style = hintTextStyle,
                                 modifier = Modifier.alpha(if (char == null) 1f else 0f)
                             )
                             if (char != null) {
-                                Text(char.toString(), style = MaterialTheme.typography.h3)
+                                Text(char.toString(), style = textStyle)
                             }
                         }
                     }

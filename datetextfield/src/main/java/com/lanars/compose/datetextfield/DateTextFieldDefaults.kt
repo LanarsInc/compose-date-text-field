@@ -2,6 +2,7 @@ package com.lanars.compose.datetextfield
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -20,4 +21,8 @@ object DateTextFieldDefaults {
         keyboardType = KeyboardType.Number,
         imeAction = ImeAction.Next
     )
+
+    val MainTextStyle = TextStyle.Default
+
+    val HintTextStyle = MainTextStyle.copy(color = MainTextStyle.color.copy(alpha = 0.5f))
 }
