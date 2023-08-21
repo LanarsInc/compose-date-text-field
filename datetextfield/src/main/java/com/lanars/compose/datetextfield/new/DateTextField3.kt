@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
@@ -49,7 +50,8 @@ fun DateTextField3(
     format: Format = Format.DDMMYYYY,
     minDate: LocalDate = LocalDate.of(1900, 1, 1),
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
-    delimiter: String = "/"
+    delimiter: String = "/",
+    cursorBrush: Brush = SolidColor(MaterialTheme.colors.primary)
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -154,7 +156,7 @@ fun DateTextField3(
                                 drawContent()
                                 if (isFocused && fieldText.length == i) {
                                     drawLine(
-                                        brush = SolidColor(Color.Magenta),
+                                        brush = cursorBrush,
                                         start = Offset(0f, 0f),
                                         end = Offset(0f, size.height),
                                         strokeWidth = 2.dp.toPx(),
@@ -162,7 +164,7 @@ fun DateTextField3(
                                     )
                                 } else if (isFocused && fieldText.length == field.length && i == field.length - 1) {
                                     drawLine(
-                                        brush = SolidColor(Color.Magenta),
+                                        brush = cursorBrush,
                                         start = Offset(size.width, 0f),
                                         end = Offset(size.width, size.height),
                                         strokeWidth = 2.dp.toPx(),
