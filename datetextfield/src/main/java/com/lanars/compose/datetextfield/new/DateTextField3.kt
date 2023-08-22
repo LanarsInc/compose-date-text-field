@@ -12,10 +12,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +29,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
@@ -57,7 +57,7 @@ fun DateTextField3(
     minDate: LocalDate = LocalDate.of(1900, 1, 1),
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
     delimiter: String = "/",
-    cursorBrush: Brush = SolidColor(MaterialTheme.colors.primary),
+    cursorBrush: Brush = SolidColor(Color.Black),
     keyboardOptions: KeyboardOptions = DateTextFieldDefaults.KeyboardOptions,
     keyboardActions: KeyboardActions = KeyboardActions(),
     textStyle: TextStyle = DateTextFieldDefaults.MainTextStyle,
@@ -159,13 +159,13 @@ fun DateTextField3(
                                 ),
                             contentAlignment = Alignment.BottomStart
                         ) {
-                            Text(
+                            BasicText(
                                 stringResource(field.placeholderRes),
                                 style = hintTextStyle,
                                 modifier = Modifier.alpha(if (char == null) 1f else 0f)
                             )
                             if (char != null) {
-                                Text(char.toString(), style = textStyle)
+                                BasicText(char.toString(), style = textStyle)
                             }
                         }
                     }
@@ -173,7 +173,7 @@ fun DateTextField3(
             }
 
             if (index < dateFormat.fields.size - 1) {
-                Text(
+                BasicText(
                     delimiter,
                     style = hintTextStyle,
                     modifier = Modifier
