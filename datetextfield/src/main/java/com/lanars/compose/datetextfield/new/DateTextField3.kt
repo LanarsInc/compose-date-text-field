@@ -1,6 +1,7 @@
 package com.lanars.compose.datetextfield.new
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -118,28 +119,7 @@ fun DateTextField3(
                 false
             }
     ) {
-        val cursorAlpha = remember { Animatable(1f) }
-        LaunchedEffect(
-            state.valueForField(DateField.Day),
-            state.valueForField(DateField.Month),
-            state.valueForField(DateField.Year),
-            state.focusedField
-        ) {
-            // Animate the cursor even when animations are disabled by the system.
-            cursorAlpha.snapTo(1f)
-            // then start the cursor blinking on animation clock (500ms on to start)
-            cursorAlpha.animateTo(0f,
-                infiniteRepeatable(
-                    animation = keyframes {
-                        durationMillis = 1000
-                        1f at 0
-                        1f at 499
-                        0f at 500
-                        0f at 999
-                    }
-                )
-            )
-        }
+        val cursorAlpha = cursorAlphaAnimatable(state)
 
         dateFormat.fields.forEachIndexed { index, field ->
             val fieldState = state.fieldsState[field]!!
@@ -163,30 +143,16 @@ fun DateTextField3(
             ) {
                 Row {
                     val fieldText = state.valueForField(field)
-                    val isFocused = state.focusedField == field
-                    for (i in 0 until field.length) {
-                        val char = fieldText.getOrNull(i)
+                    for (position in 0 until field.length) {
+                        val char = fieldText.getOrNull(position)
                         Box(
-                            modifier = Modifier.drawWithContent {
-                                drawContent()
-                                if (isFocused && fieldText.length == i) {
-                                    drawLine(
-                                        brush = cursorBrush,
-                                        start = Offset(0f, 0f),
-                                        end = Offset(0f, size.height),
-                                        strokeWidth = 2.dp.toPx(),
-                                        alpha = cursorAlpha.value
-                                    )
-                                } else if (isFocused && fieldText.length == field.length && i == field.length - 1) {
-                                    drawLine(
-                                        brush = cursorBrush,
-                                        start = Offset(size.width, 0f),
-                                        end = Offset(size.width, size.height),
-                                        strokeWidth = 2.dp.toPx(),
-                                        alpha = cursorAlpha.value
-                                    )
-                                }
-                            }
+                            modifier = Modifier.cursor(
+                                state,
+                                field,
+                                cursorBrush,
+                                { cursorAlpha.value },
+                                position
+                            )
                         ) {
                             Text(
                                 stringResource(field.placeholderRes),
@@ -207,6 +173,64 @@ fun DateTextField3(
         }
     }
 }
+
+@Composable
+internal fun cursorAlphaAnimatable(state: DateTextFieldState): Animatable<Float, AnimationVector1D> {
+    val cursorAlpha = remember { Animatable(1f) }
+    LaunchedEffect(
+        state.valueForField(DateField.Day),
+        state.valueForField(DateField.Month),
+        state.valueForField(DateField.Year),
+        state.focusedField
+    ) {
+        cursorAlpha.snapTo(1f)
+        cursorAlpha.animateTo(
+            0f,
+            infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = 1000
+                    1f at 0
+                    1f at 499
+                    0f at 500
+                    0f at 999
+                }
+            )
+        )
+    }
+    return cursorAlpha
+}
+
+internal fun Modifier.cursor(
+    state: DateTextFieldState,
+    field: DateField,
+    brush: Brush,
+    alphaProvider: () -> Float,
+    position: Int
+): Modifier {
+    val fieldText = state.valueForField(field)
+    val isFocused = state.focusedField == field
+    return drawWithContent {
+        drawContent()
+        if (isFocused && fieldText.length == position) {
+            drawLine(
+                brush = brush,
+                start = Offset(0f, 0f),
+                end = Offset(0f, size.height),
+                strokeWidth = 2.dp.toPx(),
+                alpha = alphaProvider()
+            )
+        } else if (isFocused && fieldText.length == field.length && position == field.length - 1) {
+            drawLine(
+                brush = brush,
+                start = Offset(size.width, 0f),
+                end = Offset(size.width, size.height),
+                strokeWidth = 2.dp.toPx(),
+                alpha = alphaProvider()
+            )
+        }
+    }
+}
+
 
 internal fun Modifier.noRippleClickable(
     enabled: Boolean = true,
