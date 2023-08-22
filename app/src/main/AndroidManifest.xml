@@ -11,8 +11,7 @@
         <activity
             android:name="com.lanars.compose.datetextfieldexample.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.ComposeDateInput.NoActionBar">
+            android:theme="@style/Theme.ComposeDateInput">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
