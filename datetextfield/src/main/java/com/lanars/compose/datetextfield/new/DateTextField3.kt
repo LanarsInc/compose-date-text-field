@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
@@ -110,14 +111,6 @@ fun DateTextField3(
         }
     }
 
-    val delimiterText = @Composable {
-        Text(
-            delimiter,
-            style = hintTextStyle,
-            modifier = Modifier.padding(horizontal = delimiterSpacing)
-        )
-    }
-
     Row(
         modifier = modifier
             .focusGroup()
@@ -132,6 +125,7 @@ fun DateTextField3(
             val fieldState = state.fieldsState[field]!!
             Box(
                 modifier = Modifier
+                    .alignByBaseline()
                     .focusRequester(fieldState.focusRequester)
                     .onFocusChanged {
                         if (it.isFocused) {
@@ -146,20 +140,24 @@ fun DateTextField3(
                     ) {
                         fieldState.focusRequester.requestFocus()
                         inputSession?.showSoftwareKeyboard()
-                    }
+                    },
+                contentAlignment = Alignment.BottomStart
             ) {
                 Row {
                     val fieldText = state.valueForField(field)
                     for (position in 0 until field.length) {
                         val char = fieldText.getOrNull(position)
                         Box(
-                            modifier = Modifier.cursor(
-                                state,
-                                field,
-                                cursorBrush,
-                                { cursorAlpha.value },
-                                position
-                            )
+                            modifier = Modifier
+                                .alignByBaseline()
+                                .cursor(
+                                    state,
+                                    field,
+                                    cursorBrush,
+                                    { cursorAlpha.value },
+                                    position
+                                ),
+                            contentAlignment = Alignment.BottomStart
                         ) {
                             Text(
                                 stringResource(field.placeholderRes),
@@ -175,7 +173,13 @@ fun DateTextField3(
             }
 
             if (index < dateFormat.fields.size - 1) {
-                delimiterText()
+                Text(
+                    delimiter,
+                    style = hintTextStyle,
+                    modifier = Modifier
+                        .padding(horizontal = delimiterSpacing)
+                        .alignByBaseline()
+                )
             }
         }
     }
