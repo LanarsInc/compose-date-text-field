@@ -19,10 +19,12 @@ import com.lanars.compose.datetextfield.DateFieldValue
 import com.lanars.compose.datetextfield.DateFormat
 import com.lanars.compose.datetextfield.DateValidator
 import com.lanars.compose.datetextfield.utils.empty
+import org.threeten.bp.LocalDate
 
 internal class DateTextFieldState(
     private val dateFormat: DateFormat,
-    private val initialValues: Map<DateField, DateFieldValue>? = null
+    private val initialValues: Map<DateField, DateFieldValue>? = null,
+    private val onValueChanged: (LocalDate?) -> Unit
 ) {
     val fieldsState = mutableStateMapOf(
         *dateFormat.fields.map {
@@ -40,6 +42,8 @@ internal class DateTextFieldState(
 
     private val focusedFieldState: DateFieldValue?
         get() = fieldsState[focusedField]?.value
+
+    private var isComplete: Boolean = false
 
     fun onKeyEvent(event: KeyEvent) {
         if (event.type != KeyEventType.KeyDown || focusedFieldState == null) return
@@ -67,9 +71,29 @@ internal class DateTextFieldState(
         }
 
         val updateState = {
-            fieldsState[DateField.Day] = stateSnapshot[DateField.Day]!!
-            fieldsState[DateField.Month] = stateSnapshot[DateField.Month]!!
-            fieldsState[DateField.Year] = stateSnapshot[DateField.Year]!!
+            val day = stateSnapshot[DateField.Day]!!
+            val month = stateSnapshot[DateField.Month]!!
+            val year = stateSnapshot[DateField.Year]!!
+
+            fieldsState[DateField.Day] = day
+            fieldsState[DateField.Month] = month
+            fieldsState[DateField.Year] = year
+
+            val updatedIsComplete = fieldsState.values.all { it.isComplete }
+            if (updatedIsComplete != isComplete) {
+                if (updatedIsComplete) {
+                    onValueChanged(
+                        LocalDate.of(
+                            year.value.intValue,
+                            month.value.intValue,
+                            day.value.intValue
+                        )
+                    )
+                } else {
+                    onValueChanged(null)
+                }
+            }
+            isComplete = updatedIsComplete
         }
 
         when {

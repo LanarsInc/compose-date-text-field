@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.lanars.compose.datetextfield.DateDigitsPadding
 import com.lanars.compose.datetextfield.DateTextField
-import com.lanars.compose.datetextfield.DateTextField2
 import com.lanars.compose.datetextfield.Format
 import com.lanars.compose.datetextfield.new.DateTextField3
 import com.lanars.compose.datetextfieldexample.ui.theme.DateTextFieldExampleTheme
@@ -50,10 +49,11 @@ class MainActivity : ComponentActivity() {
                     ) {
                         DateTextField3(
                             textStyle = MaterialTheme.typography.h3,
-                            hintTextStyle = MaterialTheme.typography.h3.copy(color = Color.Gray)
+                            hintTextStyle = MaterialTheme.typography.h3.copy(color = Color.Gray),
+                            onValueChanged = {
+                                Log.d("DateInput", it.toString())
+                            },
                         )
-
-                        DateTextField2()
 
                         DateTextField(
                             modifier = Modifier.onFocusChanged {

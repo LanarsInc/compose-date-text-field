@@ -63,7 +63,8 @@ fun DateTextField3(
     hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle,
     readOnly: Boolean = false,
     delimiterSpacing: Dp = DateTextFieldDefaults.DelimiterSpacing,
-    initialValue: LocalDate? = null
+    initialValue: LocalDate? = null,
+    onValueChanged: (LocalDate?) -> Unit = {}
 ) {
     val dateFormat by remember {
         val factory = DateFormat.Factory()
@@ -81,7 +82,13 @@ fun DateTextField3(
 
     var inputSession by remember { mutableStateOf<TextInputSession?>(null) }
 
-    val state = remember { DateTextFieldState(dateFormat, localDateToFieldMap(initialValue)) }
+    val state = remember {
+        DateTextFieldState(
+            dateFormat,
+            localDateToFieldMap(initialValue),
+            onValueChanged
+        )
+    }
 
     val keyboardActionRunner = remember(keyboardActions) {
         KeyboardActionRunner(keyboardActions, focusManager)
@@ -230,7 +237,6 @@ internal fun Modifier.cursor(
         }
     }
 }
-
 
 internal fun Modifier.noRippleClickable(
     enabled: Boolean = true,
