@@ -62,7 +62,7 @@ fun DateTextField3(
     format: Format = Format.DDMMYYYY,
     minDate: LocalDate = LocalDate.of(1900, 1, 1),
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
-    delimiter: String = "/",
+    delimiter: Char = '/',
     cursorBrush: Brush = SolidColor(Color.Black),
     textStyle: TextStyle = DateTextFieldDefaults.MainTextStyle,
     hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle,
@@ -193,7 +193,7 @@ fun DateTextField3(
 
             if (index < dateFormat.fields.size - 1) {
                 BasicText(
-                    delimiter,
+                    delimiter.toString(),
                     style = hintTextStyle,
                     modifier = Modifier
                         .padding(horizontal = delimiterSpacing)
