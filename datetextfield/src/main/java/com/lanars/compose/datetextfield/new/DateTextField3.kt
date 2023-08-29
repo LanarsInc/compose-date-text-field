@@ -55,10 +55,29 @@ import com.lanars.compose.datetextfield.Utils.localDateToFieldMap
 import org.threeten.bp.LocalDate
 import kotlin.jvm.optionals.getOrElse
 
+/**
+ * Date text field with on the fly validation
+ *
+ * @param modifier the [Modifier] to be applied to this field
+ * @param initialValue pre-filled [LocalDate] value
+ * @param onValueChanged triggered when the date is changed. A [LocalDate] object comes as a
+ * parameter of the callback if the date is entered completely or `null` otherwise
+ * @param format input date format specified with [Format] enum
+ * @param minDate minimum allowed date
+ * @param maxDate maximum allowed date
+ * @param delimiter character that separates date parts
+ * @param cursorBrush cursor brush style
+ * @param textStyle the style to be applied to the input text
+ * @param hintTextStyle the style to be applied to the hint text
+ * @param delimiterSpacing horizontal margin of the delimiter
+ * @param readOnly when `true`, the field can not be edited
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DateTextField3(
     modifier: Modifier = Modifier,
+    initialValue: LocalDate? = null,
+    onValueChanged: (LocalDate?) -> Unit = {},
     format: Format = Format.DDMMYYYY,
     minDate: LocalDate = LocalDate.of(1900, 1, 1),
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
@@ -66,10 +85,8 @@ fun DateTextField3(
     cursorBrush: Brush = SolidColor(Color.Black),
     textStyle: TextStyle = DateTextFieldDefaults.MainTextStyle,
     hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle,
-    readOnly: Boolean = false,
     delimiterSpacing: Dp = DateTextFieldDefaults.DelimiterSpacing,
-    initialValue: LocalDate? = null,
-    onValueChanged: (LocalDate?) -> Unit = {}
+    readOnly: Boolean = false,
 ) {
     require(maxDate >= minDate) { "The maximum date cannot be less than the minimum date" }
     require(initialValue == null || initialValue in minDate..maxDate) { "Value must be greater than or equal to minDate and less than or equal to maxDate" }
