@@ -71,6 +71,9 @@ fun DateTextField3(
     initialValue: LocalDate? = null,
     onValueChanged: (LocalDate?) -> Unit = {}
 ) {
+    require(maxDate >= minDate) { "The maximum date cannot be less than the minimum date" }
+    require(initialValue == null || initialValue in minDate..maxDate) { "Value must be greater than or equal to minDate and less than or equal to maxDate" }
+
     val dateFormat by remember {
         val factory = DateFormat.Factory()
         factory.minDate = minDate.atTime(0, 0)
