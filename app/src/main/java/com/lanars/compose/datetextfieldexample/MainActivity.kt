@@ -4,19 +4,22 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import com.lanars.compose.datetextfield.new.DateTextField3
+import com.lanars.compose.datetextfield.DateTextField
+import com.lanars.compose.datetextfield.Format
 import com.lanars.compose.datetextfieldexample.ui.theme.DateTextFieldExampleTheme
+import org.threeten.bp.LocalDate
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,20 +35,28 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DateTextFieldExample() {
-    Surface(color = MaterialTheme.colorScheme.background) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            DateTextField3(
-                modifier = Modifier.imePadding(),
-                textStyle = MaterialTheme.typography.displayMedium,
-                hintTextStyle = MaterialTheme.typography.displayMedium.copy(color = Color.Gray),
-                onValueChanged = {
-                    Log.d("DateInput", it.toString())
-                }
-            )
-        }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .imePadding(),
+        contentAlignment = Alignment.Center
+    ) {
+        DateTextField(
+            modifier = Modifier.onFocusChanged {
+                Log.d(
+                    "DateInput",
+                    it.toString()
+                )
+            },
+            format = Format.DDMMYYYY,
+            minDate = LocalDate.of(2000, 2, 12),
+            maxDate = LocalDate.of(2030, 10, 30),
+            onValueChanged = { Log.d("DateInput", it.toString()) },
+            textStyle = MaterialTheme.typography.displayMedium,
+            hintTextStyle = MaterialTheme.typography.displayMedium.copy(color = Color.Gray),
+            delimiter = '.',
+            delimiterSpacing = 4.dp,
+        )
     }
 }
