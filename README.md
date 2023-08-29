@@ -2,7 +2,7 @@
 
 Date text field with on the fly validation built with Jetpack Compose.
 <p>
-Input is being validated while user is typing it, so it is impossible to enter a wrong value.
+The input is validated while the user is typing it, so it is impossible to enter an incorrect value.
 
 Made in [LANARS](https://lanars.com/).
 
@@ -39,7 +39,7 @@ Input is being validated even though some fields are not complete
 Basic implementation
 ```kotlin
 DateTextField(
-    onEditingComplete = {}
+    onValueChanged = {}
 )
 ```
 You can set the exact date boundaries or leave it by default, from 1/1/1900 to 12/31/2100. Date format by default will be MM/DD/YYYY
@@ -52,28 +52,21 @@ DateTextField(
     // Set min and max date
     minDate = LocalDate.of(2009, 8, 27),
     maxDate = LocalDate.of(2020, 9, 17),
-    // Detect value changes
-    onValueChange = {
-        Log.d(
-            "DateInput",
-            it.toString()
-        )
-    },
-    // Get LocalDate object when date is entered
-    onEditingComplete = { Log.d("DateInput", it.toString()) },
+    // Get notified about value changes
+    onValueChanged = { Log.d("DateInput", it.toString()) },
     // Preset date value
-    value = LocalDate.of(2020, 12, 12)
-    // Apply custom text style to content
-    contentTextStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
-    // Apply custom text style to hint
+    initialValue = LocalDate.of(2020, 12, 12),
+    // Apply text style to input text
+    textStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
+    // Apply text style to hint
     hintTextStyle = TextStyle(fontSize = 25.sp, color = Color.Gray),
-    // Apply custom style to cursor
+    // Apply style to cursor
     cursorBrush = SolidColor(Color.Red),
     // Set custom delimiter
     delimiter = '.',
-    // Set padding between digits
-    padding = DateDigitsPadding(6.dp)
-    // You can set field to be readonly
+    // Set horizontal delimiter margin
+    delimiterSpacing = 4.dp,
+    // Set field to be readonly
     readOnly = true
 )
 ```
