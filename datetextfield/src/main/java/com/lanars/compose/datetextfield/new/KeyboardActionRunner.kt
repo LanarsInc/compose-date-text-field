@@ -49,7 +49,7 @@ internal class KeyboardActionRunner(
         when (imeAction) {
             Next -> focusManager.moveFocus(FocusDirection.Next)
             Previous -> focusManager.moveFocus(FocusDirection.Previous)
-            Done -> inputSession?.hideSoftwareKeyboard()
+            Done -> focusManager.clearFocus()
             // Note: Don't replace this with an else. These are specified explicitly so that we
             // don't forget to update this when statement when new imeActions are added.
             Go, Search, Send, Default, None -> Unit // Do Nothing.

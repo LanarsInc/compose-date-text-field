@@ -99,7 +99,7 @@ fun DateTextField3(
         KeyboardActionRunner(KeyboardActions(), focusManager)
     }
 
-    LaunchedEffect(state.hasFocus, readOnly, state.editingComplete) {
+    LaunchedEffect(state.hasFocus, readOnly) {
         if (state.hasFocus && !readOnly) {
             inputSession = textInputService?.startInput(
                 value = TextFieldValue(),
@@ -107,7 +107,7 @@ fun DateTextField3(
                     capitalization = KeyboardCapitalization.None,
                     autoCorrect = false,
                     keyboardType = KeyboardType.Number,
-                    imeAction = if (state.editingComplete) ImeAction.Done else ImeAction.Next
+                    imeAction = ImeAction.Done
                 ).toImeOptions(),
                 onEditCommand = { operations ->
                     operations.forEach { operation ->
