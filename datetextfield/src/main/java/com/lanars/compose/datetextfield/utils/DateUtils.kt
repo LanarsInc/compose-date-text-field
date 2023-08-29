@@ -1,10 +1,12 @@
-package com.lanars.compose.datetextfield
+package com.lanars.compose.datetextfield.utils
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import com.lanars.compose.datetextfield.DateField
+import com.lanars.compose.datetextfield.DateFieldValue
 import org.threeten.bp.LocalDate
 
-internal object Utils {
+internal object DateUtils {
     fun localDateToFieldMap(date: LocalDate?): SnapshotStateMap<DateField, DateFieldValue> {
         val map = mutableStateMapOf(
             DateField.Day to DateFieldValue(DateField.Day),
@@ -21,6 +23,7 @@ internal object Utils {
                 val datePartToString = when {
                     getDigitsCount(datePart) < field.type.length ->
                         "0".repeat(field.type.length - getDigitsCount(datePart)) + datePart.toString()
+
                     else -> datePart.toString()
                 }
                 for (i in 0 until field.values.size) {

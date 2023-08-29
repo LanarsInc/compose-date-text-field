@@ -1,4 +1,4 @@
-package com.lanars.compose.datetextfield.new
+package com.lanars.compose.datetextfield
 
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -13,10 +13,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
-import com.lanars.compose.datetextfield.DateField
-import com.lanars.compose.datetextfield.DateFieldValue
-import com.lanars.compose.datetextfield.DateFormat
-import com.lanars.compose.datetextfield.DateValidator
 import com.lanars.compose.datetextfield.utils.empty
 import org.threeten.bp.LocalDate
 

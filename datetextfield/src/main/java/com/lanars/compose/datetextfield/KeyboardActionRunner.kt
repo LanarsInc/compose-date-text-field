@@ -1,4 +1,4 @@
-package com.lanars.compose.datetextfield.new
+package com.lanars.compose.datetextfield
 
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
