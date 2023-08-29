@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -45,190 +44,104 @@ internal class DateTextFieldState(
 
     private var isComplete: Boolean = false
 
+    fun valueForField(field: DateField): String {
+        return fieldsState[field]!!.value.values.filter { it >= 0 }.joinToString(String.empty)
+    }
+
     fun onKeyEvent(event: KeyEvent) {
         if (event.type != KeyEventType.KeyDown || focusedFieldState == null) return
 
-        val modifierFieldType = focusedField!!
+        when {
+            event.isDigit() -> {
+                val char = event.utf16CodePoint.toChar()
+                onEnterDigit(char)
+            }
 
-        val stateSnapshot = fieldsState.toMap().mapValues { entry ->
-            entry.value.copy(
-                value = entry.value.value.copy()
-            )
-        }.toMutableMap()
+            event.isBackspace() -> onBackspace()
+        }
+    }
+
+    fun onEnterDigit(digit: Char) = updateState {
+        if (!digit.isDigit()) return@updateState
 
         val first = stateSnapshot[dateFormat.fields[0]]!!
         val second = stateSnapshot[dateFormat.fields[1]]!!
         val third = stateSnapshot[dateFormat.fields[2]]!!
 
-        val isValid = {
-            DateValidator.validateDate(
-                modifierFieldType,
-                stateSnapshot[DateField.Day]!!.value,
-                stateSnapshot[DateField.Month]!!.value,
-                stateSnapshot[DateField.Year]!!.value,
-                dateFormat
-            )
-        }
-
-        val updateState = {
-            val day = stateSnapshot[DateField.Day]!!
-            val month = stateSnapshot[DateField.Month]!!
-            val year = stateSnapshot[DateField.Year]!!
-
-            fieldsState[DateField.Day] = day
-            fieldsState[DateField.Month] = month
-            fieldsState[DateField.Year] = year
-
-            val updatedIsComplete = fieldsState.values.all { it.isComplete }
-            if (updatedIsComplete != isComplete) {
-                if (updatedIsComplete) {
-                    onValueChanged(
-                        LocalDate.of(
-                            year.value.intValue,
-                            month.value.intValue,
-                            day.value.intValue
-                        )
-                    )
+        val intValue = digit.digitToInt()
+        when (focusedField) {
+            first.value.type -> {
+                if (first.isComplete) {
+                    if (!second.isComplete) {
+                        if (isValid()) {
+                            second.focusRequester.requestFocus()
+                            updateState()
+                            return@updateState
+                        }
+                    } else if (!third.isComplete) {
+                        if (isValid()) {
+                            third.focusRequester.requestFocus()
+                            updateState()
+                            return@updateState
+                        }
+                    }
                 } else {
-                    onValueChanged(null)
-                }
-            }
-            isComplete = updatedIsComplete
-        }
-
-        when {
-            event.isDigit() -> {
-                val char = event.utf16CodePoint.toChar()
-                val intValue = char.digitToInt()
-                when (focusedField) {
-                    first.value.type -> {
-                        if (first.isComplete) {
-                            if (!second.isComplete) {
-                                if (isValid()) {
-                                    second.focusRequester.requestFocus()
-                                    updateState()
-                                    return
-                                }
-                            } else if (!third.isComplete) {
-                                if (isValid()) {
-                                    third.focusRequester.requestFocus()
-                                    updateState()
-                                    return
-                                }
-                            }
-                        } else {
-                            stateSnapshot[first.value.type] = first.apply {
-                                value.setValue(intValue)
-                            }
-                            if (first.isComplete) {
-                                if (!second.isComplete) {
-                                    if (isValid()) {
-                                        second.focusRequester.requestFocus()
-                                        updateState()
-                                        return
-                                    }
-                                } else if (!third.isComplete) {
-                                    if (isValid()) {
-                                        third.focusRequester.requestFocus()
-                                        updateState()
-                                        return
-                                    }
-                                }
-                            }
-                        }
+                    stateSnapshot[first.value.type] = first.apply {
+                        value.setValue(intValue)
                     }
-
-                    second.value.type -> {
-                        if (second.isComplete) {
-                            if (!third.isComplete) {
-                                if (isValid()) {
-                                    third.focusRequester.requestFocus()
-                                    updateState()
-                                    return
-                                }
-                            }
-                        } else {
-                            stateSnapshot[second.value.type] = second.apply {
-                                value.setValue(intValue)
-                            }
-                            if (second.isComplete) {
-                                if (!third.isComplete) {
-                                    if (isValid()) {
-                                        third.focusRequester.requestFocus()
-                                        updateState()
-                                        return
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    third.value.type -> {
-                        if (!third.isComplete) {
-                            stateSnapshot[third.value.type] = third.apply {
-                                value.setValue(intValue)
-                            }
-                        }
-                    }
-
-                    else -> {
-                        /* do nothing */
-                    }
-                }
-            }
-
-            event.isBackspace() -> {
-                when (focusedField) {
-                    first.value.type -> {
-                        if (!first.isEmpty) {
-                            stateSnapshot[first.value.type] = first.apply {
-                                value.clearLast()
-                            }
-                        }
-                    }
-
-                    second.value.type -> {
-                        if (!second.isEmpty) {
-                            stateSnapshot[second.value.type] = second.apply {
-                                value.clearLast()
-                            }
-                        } else {
-                            if (first.isComplete) {
-                                stateSnapshot[first.value.type] = first.apply {
-                                    value.clearLast()
-                                }
-                            }
-                            if (isValid()) {
-                                first.focusRequester.requestFocus()
-                                updateState()
-                                return
-                            }
-                        }
-                    }
-
-                    third.value.type -> {
-                        if (!third.isEmpty) {
-                            stateSnapshot[third.value.type] = third.apply {
-                                value.clearLast()
-                            }
-                        } else {
-                            if (second.isComplete) {
-                                stateSnapshot[second.value.type] = second.apply {
-                                    value.clearLast()
-                                }
-                            }
+                    if (first.isComplete) {
+                        if (!second.isComplete) {
                             if (isValid()) {
                                 second.focusRequester.requestFocus()
                                 updateState()
-                                return
+                                return@updateState
+                            }
+                        } else if (!third.isComplete) {
+                            if (isValid()) {
+                                third.focusRequester.requestFocus()
+                                updateState()
+                                return@updateState
                             }
                         }
                     }
+                }
+            }
 
-                    else -> {
-                        /* do nothing */
+            second.value.type -> {
+                if (second.isComplete) {
+                    if (!third.isComplete) {
+                        if (isValid()) {
+                            third.focusRequester.requestFocus()
+                            updateState()
+                            return@updateState
+                        }
+                    }
+                } else {
+                    stateSnapshot[second.value.type] = second.apply {
+                        value.setValue(intValue)
+                    }
+                    if (second.isComplete) {
+                        if (!third.isComplete) {
+                            if (isValid()) {
+                                third.focusRequester.requestFocus()
+                                updateState()
+                                return@updateState
+                            }
+                        }
                     }
                 }
+            }
+
+            third.value.type -> {
+                if (!third.isComplete) {
+                    stateSnapshot[third.value.type] = third.apply {
+                        value.setValue(intValue)
+                    }
+                }
+            }
+
+            else -> {
+                /* do nothing */
             }
         }
 
@@ -237,9 +150,125 @@ internal class DateTextFieldState(
         }
     }
 
-    fun valueForField(field: DateField): String {
-        return fieldsState[field]!!.value.values.filter { it >= 0 }.joinToString(String.empty)
+    fun onBackspace() = updateState {
+        val first = stateSnapshot[dateFormat.fields[0]]!!
+        val second = stateSnapshot[dateFormat.fields[1]]!!
+        val third = stateSnapshot[dateFormat.fields[2]]!!
+        when (focusedField) {
+            first.value.type -> {
+                if (!first.isEmpty) {
+                    stateSnapshot[first.value.type] = first.apply {
+                        value.clearLast()
+                    }
+                }
+            }
+
+            second.value.type -> {
+                if (!second.isEmpty) {
+                    stateSnapshot[second.value.type] = second.apply {
+                        value.clearLast()
+                    }
+                } else {
+                    if (first.isComplete) {
+                        stateSnapshot[first.value.type] = first.apply {
+                            value.clearLast()
+                        }
+                    }
+                    if (isValid()) {
+                        first.focusRequester.requestFocus()
+                        updateState()
+                        return@updateState
+                    }
+                }
+            }
+
+            third.value.type -> {
+                if (!third.isEmpty) {
+                    stateSnapshot[third.value.type] = third.apply {
+                        value.clearLast()
+                    }
+                } else {
+                    if (second.isComplete) {
+                        stateSnapshot[second.value.type] = second.apply {
+                            value.clearLast()
+                        }
+                    }
+                    if (isValid()) {
+                        second.focusRequester.requestFocus()
+                        updateState()
+                        return@updateState
+                    }
+                }
+            }
+
+            else -> {
+                /* do nothing */
+            }
+        }
+
+        if (isValid()) {
+            updateState()
+        }
     }
+
+    private fun updateState(
+        block: DateTextFieldStateScope.() -> Unit
+    ) {
+        val stateScope = object : DateTextFieldStateScope {
+            override val stateSnapshot = fieldsState.toMap().mapValues { entry ->
+                entry.value.copy(
+                    value = entry.value.value.copy()
+                )
+            }.toMutableMap()
+
+            override fun isValid(): Boolean {
+                return DateValidator.validateDate(
+                    focusedField!!,
+                    stateSnapshot[DateField.Day]!!.value,
+                    stateSnapshot[DateField.Month]!!.value,
+                    stateSnapshot[DateField.Year]!!.value,
+                    dateFormat
+                )
+            }
+
+            override fun updateState() {
+                val day = stateSnapshot[DateField.Day]!!
+                val month = stateSnapshot[DateField.Month]!!
+                val year = stateSnapshot[DateField.Year]!!
+
+                fieldsState[DateField.Day] = day
+                fieldsState[DateField.Month] = month
+                fieldsState[DateField.Year] = year
+
+                val updatedIsComplete = fieldsState.values.all { it.isComplete }
+                if (updatedIsComplete != isComplete) {
+                    if (updatedIsComplete) {
+                        onValueChanged(
+                            LocalDate.of(
+                                year.value.intValue,
+                                month.value.intValue,
+                                day.value.intValue
+                            )
+                        )
+                    } else {
+                        onValueChanged(null)
+                    }
+                }
+                isComplete = updatedIsComplete
+            }
+        }
+
+        block(stateScope)
+    }
+}
+
+internal interface DateTextFieldStateScope {
+
+    val stateSnapshot: MutableMap<DateField, DateFieldState>
+
+    fun isValid(): Boolean
+
+    fun updateState()
 }
 
 internal data class DateFieldState(
@@ -258,7 +287,6 @@ internal fun KeyEvent.isDigit(): Boolean {
     return key.nativeKeyCode in android.view.KeyEvent.KEYCODE_0..android.view.KeyEvent.KEYCODE_9
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun KeyEvent.isBackspace(): Boolean {
     return key == Key.Backspace
 }

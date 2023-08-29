@@ -36,6 +36,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.BackspaceCommand
+import androidx.compose.ui.text.input.CommitTextCommand
+import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputSession
@@ -100,8 +103,15 @@ fun DateTextField3(
             inputSession = textInputService?.startInput(
                 value = TextFieldValue(),
                 imeOptions = keyboardOptions.toImeOptions(),
-                onEditCommand = { commands ->
-                    // TODO: implement
+                onEditCommand = { operations ->
+                    operations.forEach { operation ->
+                        when (operation) {
+                            is DeleteSurroundingTextCommand,
+                            is BackspaceCommand -> state.onBackspace()
+
+                            is CommitTextCommand -> operation.text.forEach(state::onEnterDigit)
+                        }
+                    }
                 },
                 onImeActionPerformed = keyboardActionRunner::runAction
             )
