@@ -75,13 +75,13 @@ internal class DateTextFieldState(
                     if (!second.isComplete) {
                         if (isValid()) {
                             second.focusRequester.requestFocus()
-                            updateState()
+                            setState()
                             return@updateState
                         }
                     } else if (!third.isComplete) {
                         if (isValid()) {
                             third.focusRequester.requestFocus()
-                            updateState()
+                            setState()
                             return@updateState
                         }
                     }
@@ -93,13 +93,13 @@ internal class DateTextFieldState(
                         if (!second.isComplete) {
                             if (isValid()) {
                                 second.focusRequester.requestFocus()
-                                updateState()
+                                setState()
                                 return@updateState
                             }
                         } else if (!third.isComplete) {
                             if (isValid()) {
                                 third.focusRequester.requestFocus()
-                                updateState()
+                                setState()
                                 return@updateState
                             }
                         }
@@ -112,7 +112,7 @@ internal class DateTextFieldState(
                     if (!third.isComplete) {
                         if (isValid()) {
                             third.focusRequester.requestFocus()
-                            updateState()
+                            setState()
                             return@updateState
                         }
                     }
@@ -124,7 +124,7 @@ internal class DateTextFieldState(
                         if (!third.isComplete) {
                             if (isValid()) {
                                 third.focusRequester.requestFocus()
-                                updateState()
+                                setState()
                                 return@updateState
                             }
                         }
@@ -146,7 +146,7 @@ internal class DateTextFieldState(
         }
 
         if (isValid()) {
-            updateState()
+            setState()
         }
     }
 
@@ -176,7 +176,7 @@ internal class DateTextFieldState(
                     }
                     if (isValid()) {
                         first.focusRequester.requestFocus()
-                        updateState()
+                        setState()
                         return@updateState
                     }
                 }
@@ -195,7 +195,7 @@ internal class DateTextFieldState(
                     }
                     if (isValid()) {
                         second.focusRequester.requestFocus()
-                        updateState()
+                        setState()
                         return@updateState
                     }
                 }
@@ -207,14 +207,12 @@ internal class DateTextFieldState(
         }
 
         if (isValid()) {
-            updateState()
+            setState()
         }
     }
 
-    private fun updateState(
-        block: DateTextFieldStateScope.() -> Unit
-    ) {
-        val stateScope = object : DateTextFieldStateScope {
+    private fun updateState(block: StateUpdater.() -> Unit) {
+        val stateUpdater = object : StateUpdater {
             override val stateSnapshot = fieldsState.toMap().mapValues { entry ->
                 entry.value.copy(
                     value = entry.value.value.copy()
@@ -231,7 +229,7 @@ internal class DateTextFieldState(
                 )
             }
 
-            override fun updateState() {
+            override fun setState() {
                 val day = stateSnapshot[DateField.Day]!!
                 val month = stateSnapshot[DateField.Month]!!
                 val year = stateSnapshot[DateField.Year]!!
@@ -258,17 +256,17 @@ internal class DateTextFieldState(
             }
         }
 
-        block(stateScope)
+        block(stateUpdater)
     }
 }
 
-internal interface DateTextFieldStateScope {
+internal interface StateUpdater {
 
     val stateSnapshot: MutableMap<DateField, DateFieldState>
 
     fun isValid(): Boolean
 
-    fun updateState()
+    fun setState()
 }
 
 internal data class DateFieldState(
