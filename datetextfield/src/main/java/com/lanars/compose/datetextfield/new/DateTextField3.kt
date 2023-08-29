@@ -39,7 +39,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.BackspaceCommand
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.unit.Dp
@@ -61,8 +64,6 @@ fun DateTextField3(
     maxDate: LocalDate = LocalDate.of(2100, 12, 31),
     delimiter: String = "/",
     cursorBrush: Brush = SolidColor(Color.Black),
-    keyboardOptions: KeyboardOptions = DateTextFieldDefaults.KeyboardOptions,
-    keyboardActions: KeyboardActions = KeyboardActions(),
     textStyle: TextStyle = DateTextFieldDefaults.MainTextStyle,
     hintTextStyle: TextStyle = DateTextFieldDefaults.HintTextStyle,
     readOnly: Boolean = false,
@@ -94,15 +95,20 @@ fun DateTextField3(
         )
     }
 
-    val keyboardActionRunner = remember(keyboardActions) {
-        KeyboardActionRunner(keyboardActions, focusManager)
+    val keyboardActionRunner = remember {
+        KeyboardActionRunner(KeyboardActions(), focusManager)
     }
 
-    LaunchedEffect(state.hasFocus, readOnly) {
+    LaunchedEffect(state.hasFocus, readOnly, state.editingComplete) {
         if (state.hasFocus && !readOnly) {
             inputSession = textInputService?.startInput(
                 value = TextFieldValue(),
-                imeOptions = keyboardOptions.toImeOptions(),
+                imeOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrect = false,
+                    keyboardType = KeyboardType.Number,
+                    imeAction = if (state.editingComplete) ImeAction.Done else ImeAction.Next
+                ).toImeOptions(),
                 onEditCommand = { operations ->
                     operations.forEach { operation ->
                         when (operation) {

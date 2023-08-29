@@ -39,6 +39,8 @@ internal class DateTextFieldState(
 
     val hasFocus by derivedStateOf { focusedField != null }
 
+    val editingComplete by derivedStateOf { fieldsState.all { it.value.isComplete } }
+
     private val focusedFieldState: DateFieldValue?
         get() = fieldsState[focusedField]?.value
 
