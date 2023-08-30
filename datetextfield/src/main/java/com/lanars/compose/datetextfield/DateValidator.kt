@@ -1,12 +1,13 @@
 package com.lanars.compose.datetextfield
 
+import com.lanars.compose.datetextfield.utils.Range
 import org.threeten.bp.DateTimeException
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.Period
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 import kotlin.math.pow
 
 internal object DateValidator {
@@ -182,15 +183,20 @@ internal object DateValidator {
             if (!dateFormat.getRange(DateField.Month).contains(monthIntValue)) {
                 return false
             }
-            if (!year.isComplete || !day.isComplete) {
-                !day.isComplete || day.intValue <= getMaxMonthValue(
-                    monthIntValue
+            if (!day.isComplete) {
+                when (month.intValue) {
+                    2 -> day.intValue < 3
+                    else -> day.intValue <= 3
+                }
+            } else if (!year.isComplete) {
+                day.intValue <= getMaxMonthValue(monthIntValue)
+            } else {
+                isDateExists(
+                    day.intValue,
+                    monthIntValue,
+                    year.intValue
                 )
-            } else isDateExists(
-                day.intValue,
-                monthIntValue,
-                year.intValue
-            )
+            }
         } else monthIntValue <= 1
     }
 
@@ -200,6 +206,8 @@ internal object DateValidator {
         year: DateFieldValue,
         dateFormat: DateFormat
     ): Boolean {
+        if (year.isEmpty) return true
+
         if (
             isYearExists(
                 year.intValue,
