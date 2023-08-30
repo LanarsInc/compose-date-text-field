@@ -50,12 +50,12 @@ DateTextField(
     // Set the desired date format
     format = Format.MMDDYYYY,
     // Set min and max date
-    minDate = LocalDate.of(2009, 8, 27),
-    maxDate = LocalDate.of(2020, 9, 17),
+    minDate = LocalDate.now().minusYears(1),
+    maxDate = LocalDate.now().plusYears(1),
     // Get notified about value changes
     onValueChanged = { Log.d("DateInput", it.toString()) },
     // Preset date value
-    initialValue = LocalDate.of(2020, 12, 12),
+    initialValue = LocalDate.now(),
     // Apply text style to input text
     textStyle = TextStyle(fontSize = 25.sp, color = Color.Black),
     // Apply text style to hint

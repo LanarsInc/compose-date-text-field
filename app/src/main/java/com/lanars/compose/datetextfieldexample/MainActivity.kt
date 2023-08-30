@@ -50,8 +50,8 @@ fun DateTextFieldExample() {
                 )
             },
             format = Format.DDMMYYYY,
-            minDate = LocalDate.of(2000, 2, 12),
-            maxDate = LocalDate.of(2030, 10, 30),
+            minDate = LocalDate.now().minusYears(1),
+            maxDate = LocalDate.now().plusYears(1),
             onValueChanged = { Log.d("DateInput", it.toString()) },
             textStyle = MaterialTheme.typography.displayMedium,
             hintTextStyle = MaterialTheme.typography.displayMedium.copy(color = Color.Gray),
