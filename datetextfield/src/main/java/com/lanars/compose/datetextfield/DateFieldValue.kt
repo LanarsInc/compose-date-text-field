@@ -78,10 +78,5 @@ internal class DateFieldValue private constructor(
         setValue(position, -1)
     }
 
-    fun copy(): DateFieldValue {
-        return DateFieldValue(
-            type,
-            values
-        )
-    }
+    fun copy() = DateFieldValue(type, values)
 }
