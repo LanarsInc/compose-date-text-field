@@ -14,7 +14,7 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 import com.lanars.compose.datetextfield.utils.empty
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 
 internal class DateTextFieldState(
     private val dateFormat: DateFormat,

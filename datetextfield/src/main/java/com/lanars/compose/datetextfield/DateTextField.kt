@@ -48,7 +48,7 @@ import androidx.compose.ui.text.input.TextInputSession
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.lanars.compose.datetextfield.utils.DateUtils.localDateToFieldMap
-import org.threeten.bp.LocalDate
+import java.time.LocalDate
 import kotlin.jvm.optionals.getOrElse
 
 /**
@@ -277,7 +277,7 @@ internal fun Modifier.cursor(
 internal fun Modifier.noRippleClickable(
     enabled: Boolean = true,
     onClick: () -> Unit
-) = clickable(MutableInteractionSource(), indication = null, enabled = enabled, onClick = onClick)
+) = this.clickable(MutableInteractionSource(), indication = null, enabled = enabled, onClick = onClick)
 
 internal fun KeyboardOptions.toImeOptions() =
     ImeOptions(

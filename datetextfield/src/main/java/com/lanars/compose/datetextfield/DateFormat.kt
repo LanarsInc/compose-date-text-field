@@ -3,7 +3,7 @@ package com.lanars.compose.datetextfield
 import android.annotation.SuppressLint
 import android.text.TextUtils
 import com.lanars.compose.datetextfield.utils.Range
-import org.threeten.bp.LocalDateTime
+import java.time.LocalDateTime
 import java.util.*
 
 internal class DateFormat private constructor(builder: Builder) {
