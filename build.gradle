@@ -1,6 +1,8 @@
 buildscript {
     ext {
         kotlin_version = '1.9.0'
+        compose_compiler_version = '1.5.4'
+        compose_version = '1.6.1'
         version_name = '2.0.0'
         version_code = 4
     }

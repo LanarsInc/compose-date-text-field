@@ -29,15 +29,16 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled  true
     }
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
     buildFeatures {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.1'
+        kotlinCompilerExtensionVersion compose_compiler_version
     }
     packagingOptions {
         resources {
@@ -48,9 +49,10 @@ android {
 
 dependencies {
     implementation project(path: ':datetextfield')
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
 
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation "androidx.compose.material3:material3:1.1.1"
     implementation 'androidx.activity:activity-compose:1.7.2'
-    debugImplementation "androidx.compose.ui:ui-tooling:1.5.0"
+    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 }
